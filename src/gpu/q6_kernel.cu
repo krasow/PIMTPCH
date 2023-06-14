@@ -7,7 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 //! @param lineitem
 ////////////////////////////////////////////////////////////////////////////////
-__global__ void q6_kernel(data *lineitem, uint64_t sum)
+__global__ void q6_kernel(data *lineitem, uint64_t *sum)
 {
 	extern __shared__ uint64_t temp[]; 
 
@@ -30,7 +30,7 @@ __global__ void q6_kernel(data *lineitem, uint64_t sum)
     // do a reduction here with thread 0
     if (threadIdx.x == 0) {
         for (int j=0; j < blockDim.x; j++) {
-             sum += temp[j];
+            *sum += temp[j];
         }
 
     }
@@ -38,7 +38,7 @@ __global__ void q6_kernel(data *lineitem, uint64_t sum)
 
 
 
-uint64_t q6_gpu(data *lineitem, uint64_t sum) {
+uint64_t q6_gpu(data *lineitem, uint64_t *sum) {
 
     int threadblock_size = 256;
     int num_blocks = (NUM_TUPLES + threadblock_size - 1) / threadblock_size;

@@ -30,14 +30,14 @@ int main(int argc, char *argv[]){
    
         cudaMalloc((void *) device_tups, NUM_TUPLES * sizeof(data));
         // assuming all tuples fit on GPU all at once
-        cudaMemcpy(device_tups, tups, NUM_TUPLES * sizeof(data), cudaMemcpyHostToDevice);
+        cudaMemcpy((void *) device_tups, tups, NUM_TUPLES * sizeof(data), cudaMemcpyHostToDevice);
 
 		gpu_t.start();
 		q6_gpu(device_tups, device_q6_sum);
 		gpu_t.stop();
 
         cudaDeviceSynchronize();
-        cudaMemcpy(&tpch_q6_sum, device_q6_sum, sizeof(uint64_t*), cudaMemcpyDeviceToHost);
+        cudaMemcpy((void *)&tpch_q6_sum, device_q6_sum, sizeof(uint64_t*), cudaMemcpyDeviceToHost);
 	}
 
 	gpu_t.print("CUDA timings", tpch_q6_sum);

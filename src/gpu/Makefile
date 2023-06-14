@@ -1,6 +1,6 @@
 CC=nvcc
-CFLAGS=-O2 -march=native --std=c++11 -g -Wall
-LDFLAGS=-lgomp -lm
+CFLAGS=-O2 --std=c++11 -g 
+LDFLAGS=-lm
 
 COMMON_HOST=../common/shared_host.cpp
 SOURCE_HOST=main.cu q6_kernel.cu $(COMMON_HOST)

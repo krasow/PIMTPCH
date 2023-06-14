@@ -16,11 +16,11 @@ void fill(data* lineitem)
 		MM = rand() % 12 + 1; 	 // 1-12
 		DD = rand() % 31 + 1; 	// 1-31
 
-		struct tm ti={0};
+		struct tm ti = { 0 };
 		ti.tm_year = YYYY;
-		ti.tm_mon  = MM;
+		ti.tm_mon = MM;
 		ti.tm_mday = DD;
-	
+
 		(lineitem + i)->l_shipdate = (uint32_t)mktime(&ti);
 
 		// char MM_str[3]; sprintf(MM_str, "%02d", MM & 0x1F);
@@ -44,7 +44,7 @@ void fill(data* lineitem)
 
 
 
-int main(int argc, char *argv[]) {
+int main(int argc, char* argv[]) {
 	srand(SEED);
 
 	// input size 
@@ -64,11 +64,11 @@ int main(int argc, char *argv[]) {
 	print_data(tups);
 #endif
 
-	FILE *f = fopen(DATABASE, "wb");
+	FILE* f = fopen(DATABASE, "wb");
 	fwrite(tups, sizeof(data), NUM_TUPLES, f);
 	fclose(f);
 
-	
+
 	free(tups);
 	return 0;
 }

@@ -116,11 +116,12 @@ int main(int argc, char* argv[]) {
 		// end DPU execution time
 		// dpu_t.stop();
 
-
-		// retrieve number of cycles on DPU
-		uint32_t nb_cycles;
+		// retrieve number of instructions
+		uint32_t nb_perf;
+		uint32_t nb_perf_total = 0;
 		DPU_FOREACH(dpu_set, dpu) {
-			DPU_ASSERT(dpu_copy_from(dpu, "nb_cycles", 0, &nb_cycles, sizeof(uint32_t)));
+			DPU_ASSERT(dpu_copy_from(dpu, "nb_perf", 0, &nb_perf, sizeof(uint32_t)));
+			nb_perf_total += nb_perf;
 		}
 
 		// retrieve DPU frequency
@@ -129,7 +130,8 @@ int main(int argc, char* argv[]) {
 			DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(uint32_t)));
 		}
 
-		double dpu_time = ((double)nb_cycles / clocks_per_sec) * 1000;
+		// assume 1 insturction per clock on average
+		double dpu_time = ((double)(nb_perf_total / nr_of_dpus) / clocks_per_sec) * 1000;
 		// manual set for the average time
 		dpu_t.set(dpu_time);
 
@@ -181,20 +183,32 @@ int main(int argc, char* argv[]) {
 		DPU_ASSERT(dpu_prepare_xfer(dpu, results));
 		DPU_ASSERT(dpu_push_xfer(dpu, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, reduce_args.transfer_size, DPU_XFER_DEFAULT));
 
-		dpu_reduction_t.start();
+		// dpu_reduction_t.start();
 		DPU_ASSERT(dpu_launch(dpu, DPU_SYNCHRONOUS));
-		dpu_reduction_t.stop();
+		// dpu_reduction_t.stop();
 
 		// set output
 		q6_out = 0;
 		dpu_output_size = sizeof(uint64_t);
 		DPU_ASSERT(dpu_copy_from(dpu, DPU_MRAM_HEAP_POINTER_NAME, reduce_args.transfer_size, &q6_out, dpu_output_size));
 
+		// retrieve number of instructions
+		uint32_t red_nb_perf;
+		DPU_ASSERT(dpu_copy_from(dpu, "nb_perf", 0, &red_nb_perf, sizeof(uint32_t)));
+	
+		// retrieve DPU frequency
+		DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(uint32_t)));
+		
+
+		// assume 1 insturction per clock on averreage
+		double red_time = ((double)red_nb_perf / clocks_per_sec) * 1000;
+		// manual set for the average time
+		dpu_reduction_t.set(red_time);
+
 #ifdef PRINT
 		DPU_ASSERT(dpu_log_read(dpu, stdout));
 		std::cout << "Result from reduction: " << q6_out << std::endl;
 #endif 
-
 
 		free(results);
 		DPU_ASSERT(dpu_free(dpu_set));

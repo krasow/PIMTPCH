@@ -20,7 +20,7 @@ uint64_t tpch_q6(data* lineitem)
 
 	//scan lineitem
 	for (size_t i = 0; i < NUM_TUPLES; i++) {
-		if (   ((lineitem + i)->l_shipdate >= Q6_DATE1)  // l_shipdate >= date
+		if (((lineitem + i)->l_shipdate >= Q6_DATE1)  // l_shipdate >= date
 			&& ((lineitem + i)->l_shipdate < Q6_DATE2)   // l_shipdate < date
 			&& ((lineitem + i)->l_discount >= Q6_DISCOUNT1)
 			&& ((lineitem + i)->l_discount <= Q6_DISCOUNT2)

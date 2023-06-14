@@ -129,7 +129,6 @@ int main(int argc, char* argv[]) {
 		DPU_FOREACH(dpu_set, dpu) {
 			DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(uint32_t)));
 		}
-
 		// assume 1 insturction per clock on average
 		double dpu_time = ((double)(nb_perf_total / nr_of_dpus) / clocks_per_sec) * 1000;
 		// manual set for the average time
@@ -198,8 +197,6 @@ int main(int argc, char* argv[]) {
 	
 		// retrieve DPU frequency
 		DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(uint32_t)));
-		
-
 		// assume 1 insturction per clock on averreage
 		double red_time = ((double)red_nb_perf / clocks_per_sec) * 1000;
 		// manual set for the average time

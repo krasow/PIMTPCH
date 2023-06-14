@@ -35,3 +35,7 @@ trace*
 *.txt
 core
 *.dat
+.editorconfig
+.vscode
+
+build

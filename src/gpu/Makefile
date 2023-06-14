@@ -1,10 +1,11 @@
 CC=nvcc
-CFLAGS=-O2 --std=c++11 -g 
-LDFLAGS=-lm
+CFLAGS=-O2 --std=c++11
+LDFLAGS=-lcuda -lcudart -lm 
+
 
 COMMON_HOST=../common/shared_host.cpp
-SOURCE_HOST=main.cu q6_kernel.cu $(COMMON_HOST)
-BUILDDIR=../../build/cpu
+SOURCE_HOST=main.cpp q6_kernel.cu $(COMMON_HOST)
+BUILDDIR=../../build/gpu
 TARGETS=$(BUILDDIR)/q6
 
 .phony: all

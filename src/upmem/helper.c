@@ -1,7 +1,4 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
-#include <string.h>
+#include "q6_upmem.h"
 
 uint16_t find_log2(uint16_t input) {
     if (input == 1) { return 0; } 

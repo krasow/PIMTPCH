@@ -1,1 +1,0 @@
-uint64_t tpch_q6(data* lineitem);

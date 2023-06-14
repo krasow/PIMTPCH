@@ -10,15 +10,18 @@
 #include <perfcounter.h>
 #include <handshake.h>
 #include <barrier.h>
+#include <perfcounter.h>
 
-#include "q6_test.h"
+#include "q6_upmem.h"
 
 __host dpu_arguments_t DPU_INPUT_ARGUMENTS;
+__host uint32_t nb_cycles;
 
 // Barrier
 BARRIER_INIT(my_barrier, NUM_TASKLETS);
 
 int main() {
+    perfcounter_config(COUNT_CYCLES, true);
     uint16_t tasklet_id = me();
 
     if (tasklet_id == 0) { // Initialize once the cycle counter
@@ -31,7 +34,6 @@ int main() {
 
     // Address of the current processing block in MRAM
     uint32_t mram_base_addr = (uint32_t)DPU_MRAM_HEAP_POINTER;
-
 
     uint16_t elem_size = sizeof(data);
     uint16_t elem_size_log2 = find_log2(elem_size);
@@ -74,6 +76,7 @@ int main() {
     // Write cache to current MRAM block
     uint32_t offset = mram_base_addr + total_transfer_offset + (tasklet_id << tasklet_output_size_log2);
     mram_write(&out[tasklet_id],(__mram_ptr void*)(offset), tasklet_output_size);
-    
+
+    nb_cycles = perfcounter_get();
     return 0;
 }

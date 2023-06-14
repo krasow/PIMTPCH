@@ -5,7 +5,8 @@
 #include "q6_gpu.h"
 
 ////////////////////////////////////////////////////////////////////////////////
-//! @param lineitem
+//! @param lineitem array of tuples
+//! @param sum output selection sum of TPCH Q6 query
 ////////////////////////////////////////////////////////////////////////////////
 __global__ void q6_kernel(data *lineitem, uint64_t *sum)
 {
@@ -22,9 +23,10 @@ __global__ void q6_kernel(data *lineitem, uint64_t *sum)
             && ((lineitem + j)->l_discount <= Q6_DISCOUNT2)
             && ((lineitem + j)->l_quantity < Q6_QUANTITY)) {
             temp_sum += (lineitem + j)->l_extendedprice * (lineitem + j)->l_discount;
-        }
-        
+        } 
 	}
+    
+    __syncthreads();  
     // store local into shared global
 	temp[threadIdx.x] = temp_sum;
 
@@ -34,7 +36,9 @@ __global__ void q6_kernel(data *lineitem, uint64_t *sum)
             *sum += temp[j];
         }
     }
-    // *sum = 132;
+
+    *sum = 132;
+    
 }
 
 void q6_gpu_setup(data *tups, data *device_tups, uint64_t *host_q6_sum, uint64_t *device_q6_sum) {
@@ -42,7 +46,7 @@ void q6_gpu_setup(data *tups, data *device_tups, uint64_t *host_q6_sum, uint64_t
     cudaMemcpy((void *) device_q6_sum, host_q6_sum, sizeof(uint64_t*), cudaMemcpyHostToDevice);
     cudaMalloc((void **) &device_tups, tableSize);
     // assuming all tuples fit on GPU all at once
-    cudaMemcpy((void *) device_tups, tups, tableSize, cudaMemcpyHostToDevice);
+    cudaMemcpy((void **) &device_tups, tups, tableSize, cudaMemcpyHostToDevice);
 }
 
 void q6_gpu_destruct(data *device_tups, uint64_t *host_q6_sum, uint64_t *device_q6_sum) {

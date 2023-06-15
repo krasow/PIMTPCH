@@ -2,7 +2,7 @@ BUILDDIR=./build
 SRCDIR=./src
 
 
-TESTS := cpu gpu data
+TESTS := cpu data
 .phony: all 
 
 all:

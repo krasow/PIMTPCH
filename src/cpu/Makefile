@@ -1,6 +1,6 @@
-CC=g++
-CFLAGS=-O2 -march=native --std=c++11 -g -Wall
-LDFLAGS=-lgomp -lm
+CC=clang++
+CFLAGS=-O3 -Ofast -march=native --std=c++11 -g -Wall -fopenmp
+LDFLAGS=-lomp -lm 
 
 COMMON_HOST=../common/shared_host.cpp
 SOURCE_HOST=main.cpp q6_baseline.cpp $(COMMON_HOST)

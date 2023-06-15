@@ -21,6 +21,7 @@ void fill(data* lineitem)
 		ti.tm_mon = MM;
 		ti.tm_mday = DD;
 
+#ifdef __ROW
 		(lineitem + i)->l_shipdate = (uint32_t)mktime(&ti);
 
 		// char MM_str[3]; sprintf(MM_str, "%02d", MM & 0x1F);
@@ -39,16 +40,29 @@ void fill(data* lineitem)
 		(lineitem + i)->l_discount = rand() % 100; 	   // 0-100
 		(lineitem + i)->l_quantity = rand() % 100 + 1; // 1-100
 		(lineitem + i)->l_extendedprice = ((double)rand() / RAND_MAX) * (double)100; // 0-100
+#endif
+
+#ifdef __COL
+		lineitem->l_shipdate[i] = (uint32_t)mktime(&ti);
+		lineitem->l_discount[i] = rand() % 100; 	// 0-100
+		lineitem->l_quantity[i] = rand() % 100 + 1; // 1-100
+		lineitem->l_extendedprice[i] = ((double)rand() / RAND_MAX) * (double)100; // 0-100
+#endif
 	}
 }
 
 
 
 int main(int argc, char* argv[]) {
-	srand(SEED);
-
-	// input size 
+#ifdef __ROW
 	const uint64_t total_size = NUM_TUPLES * sizeof(data);
+	const uint64_t elems = NUM_TUPLES;
+#endif
+#ifdef __COL
+	const uint64_t total_size = sizeof(data);
+	const uint64_t elems = 1;
+#endif
+	srand(SEED);
 	data* tups = (data*)malloc(total_size);
 	if (!tups) exit(-1);
 
@@ -65,9 +79,8 @@ int main(int argc, char* argv[]) {
 #endif
 
 	FILE* f = fopen(DATABASE, "wb");
-	fwrite(tups, sizeof(data), NUM_TUPLES, f);
+	fwrite(tups, sizeof(data), elems, f);
 	fclose(f);
-
 
 	free(tups);
 	return 0;

@@ -4,13 +4,22 @@
 #include <stdlib.h>
 #include <stdint.h>
 
-
 // #define DEBUG
 // #define PRINT
 
-#define DATABASE		"lineitems.dat"
+#define __COL
 
 #define NUM_TUPLES      (1<<24)
+
+
+// if __ROW or __COL is not defined, __COL will be default
+#ifdef  __ROW
+    #define DATABASE		"lineitems_row.dat"
+#else 
+    #define __COL 
+    #define DATABASE		"lineitems.dat"
+#endif
+
 
 // Q6 query selectivity 
 #define Q6_DATE1        757404000  // "1994-01-01"
@@ -28,16 +37,25 @@
 #define roundup(n, m)   ((n / m) * m + m)
 
 
-// size is 32 bytes
+#ifdef __ROW
+//size is 32 bytes 
 typedef struct data {
     uint32_t     l_shipdate;
     uint64_t  	 l_discount;
     uint64_t     l_quantity;
     uint64_t     l_extendedprice;
     char         junk[4];
-} data;
+}  data;
+#endif
 
-
+#ifdef __COL
+typedef struct data {
+    uint32_t     l_shipdate[NUM_TUPLES];
+    uint64_t  	 l_discount[NUM_TUPLES];
+    uint64_t     l_quantity[NUM_TUPLES];
+    uint64_t     l_extendedprice[NUM_TUPLES];
+} __attribute__((aligned(512))) data;
+#endif
 
 data* retrieve();
 void print_data(data* lineitem);

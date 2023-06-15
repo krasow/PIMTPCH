@@ -1,6 +1,7 @@
 // main.cpp for cpu test
 #include "q6_cpu.h"
-#include "../common/timer.h"
+
+#include <omp.h>
 
 
 int main(int argc, char *argv[]) {

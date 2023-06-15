@@ -6,8 +6,15 @@
 #include "timer.h"
 
 data* retrieve() {
-	// input size 
+#ifdef __ROW
 	const uint64_t total_size = NUM_TUPLES * sizeof(data);
+	const uint64_t elems = NUM_TUPLES;
+#endif
+#ifdef __COL
+	const uint64_t total_size = sizeof(data);
+	const uint64_t elems = 1;
+#endif
+
 	data* tups = (data*)malloc(total_size);
 	if (!tups) exit(-1);
 
@@ -17,27 +24,36 @@ data* retrieve() {
 #endif
 
 
-	if(access(DATABASE, F_OK)) {
+	if (access(DATABASE, F_OK)) {
 		std::cerr << "Error: no database file found. Must call 'sh q6.sh -t data'" << std::endl;
 		exit(1);
-	} 
-	FILE *f = fopen(DATABASE, "rb");
-	if (!fread(tups, sizeof(data), NUM_TUPLES, f)) {
+	}
+	FILE* f = fopen(DATABASE, "rb");
+	if (!fread(tups, sizeof(data), elems, f)) {
 		std::cerr << "Error: mismatching tuples in database file. Must call 'sh q6.sh -t data'" << std::endl;
 		exit(1);
 	}
 	fclose(f);
-	
+
 	return tups;
 }
 
 
 void print_data(data* lineitem) {
 	for (uint32_t i = 0; i < NUM_TUPLES; i++) {
+#ifdef __ROW
 		std::cout << (lineitem + i)->l_shipdate << ", " <<
-			(lineitem + i)->l_discount 			<< ", " <<
-			(lineitem + i)->l_quantity 			<< ", " <<
-			(lineitem + i)->l_extendedprice <<  std::endl;
+			(lineitem + i)->l_discount << ", " <<
+			(lineitem + i)->l_quantity << ", " <<
+			(lineitem + i)->l_extendedprice << std::endl;
+#endif
+
+#ifdef __COL
+		std::cout << lineitem->l_shipdate[i] << ", " <<
+			lineitem->l_discount[i] << ", " <<
+			lineitem->l_quantity[i] << ", " <<
+			lineitem->l_extendedprice[i] << std::endl;
+#endif
 	}
 }
 
@@ -58,10 +74,9 @@ void calc_time::set(double time) {
 }
 
 void calc_time::print(std::string test, uint64_t output) {
-	std::cout << test << " q6 with " << NUM_TUPLES << " tuples with " 
-			  << this->iterations << " iterations: " << std::endl;
-	if (output != 0) std::cout << "test result: " << output << std::endl;
-	std::cout << "avg time: " << this->average_time << " ms\n" << std::endl;
+	printf("%s q6 with %d tuples with %d iterations\n", test.c_str(), NUM_TUPLES, this->iterations);
+	if (output != 0)  printf("test result: %lu\n", output);
+	printf("avg time: %f ms\n", this->average_time);
 }
 
 void calc_time::print(std::string test) {
@@ -70,8 +85,8 @@ void calc_time::print(std::string test) {
 
 void calc_time::update() {
 	this->iterations++;
-	this->total_time += ((stopTime.tv_sec - startTime.tv_sec) * 1000000.0 + 
-	  	  				stopTime.tv_usec - startTime.tv_usec) / 1000;
+	this->total_time += ((stopTime.tv_sec - startTime.tv_sec) * 1000000.0 +
+		stopTime.tv_usec - startTime.tv_usec) / 1000;
 
 	this->average_time = this->total_time / this->iterations;
 }

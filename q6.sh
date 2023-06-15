@@ -1,3 +1,4 @@
+#!/bin/bash
 printhelp()
 {
     echo "another custom program smh";
@@ -21,27 +22,30 @@ done
 
 # check if a test is set
 if [ -z ${TEST+x} ]; then 
-    echo "Must set -t to run a test";
-    echo " ";
+    echo "Must set -t to run a test"
+    echo " "
     printhelp
-fi
-
-# check for output files
-if [ ! -z ${__STDOUTFILE} ]; then
-    OUPUT=`>> $__STDOUTFILE`
 fi
 
 
 # -t :: data
-if [ "$Test" = data ]; then 
+if [ "$TEST" = data ]; then 
     ./build/$TEST/q6
 # -t :: threadmp
-elif [ "$Test" = threadmp ]; then 
+elif [ "$TEST" = threadmp ]; then 
     for thread in 1 2 4 8 16 32 64 128 172
     do
-        OMP_NUM_THREADS=$thread ./build/$TEST/q6 $ITERS $OUTPUT
+        if [ -z ${__STDOUTFILE} ]; then
+            OMP_NUM_THREADS=$thread ./build/cpu/q6 $ITERS 
+        else
+            OMP_NUM_THREADS=$thread ./build/cpu/q6 $ITERS >> $__STDOUTFILE
+        fi
     done
 # -t :: cpu upmem gpu
 else 
-    ./build/$TEST/q6 $ITERS $OUTPUT
+    if [ -z ${__STDOUTFILE} ]; then
+        ./build/$TEST/q6 $ITERS 
+    else
+        ./build/$TEST/q6 $ITERS >> $__STDOUTFILE
+    fi
 fi 

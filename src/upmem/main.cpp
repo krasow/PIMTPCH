@@ -26,7 +26,7 @@ int main(int argc, char* argv[]) {
 
 	// get from DATABASE stored
 	data* tups = retrieve();
-	
+
 	// init output
 	uint64_t q6_out = 0;
 
@@ -74,8 +74,13 @@ int main(int argc, char* argv[]) {
 
 
 		uint32_t idx_dpu = 0;
+
+
+#ifndef SIMULATOR // method is not accurate in simulator
 		// start transfer time
 		dpu_transfer_t.start();
+#endif
+
 		// transfer input arguments 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
 			DPU_ASSERT(dpu_prepare_xfer(dpu, &input_arguments[idx_dpu]));
@@ -103,19 +108,28 @@ int main(int argc, char* argv[]) {
 #endif
 		// message sizes have to match
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, input_dpu_8bytes, DPU_XFER_DEFAULT));
-		// end transfer time
-		dpu_transfer_t.stop();
+		
+#ifndef SIMULATOR
+		dpu_transfer_t.stop(); // not accurate in simulation
+#endif
 
 
+
+#ifndef SIMULATOR // method is not accurate in simulator
 		// start DPU execution time
-		// dpu_t.start();
+		dpu_t.start();
+#endif
 
 		// launch DPUs in synchronous mode (wait until complete)
 		DPU_ASSERT(dpu_launch(dpu_set, DPU_SYNCHRONOUS));
-		
-		// end DPU execution time
-		// dpu_t.stop();
 
+
+#ifndef SIMULATOR
+		// end DPU execution time
+		dpu_t.stop();
+#endif
+
+#ifdef SIMULATOR // timing information in simulation
 		// retrieve number of instructions
 		uint32_t nb_perf;
 		uint32_t nb_perf_total = 0;
@@ -133,6 +147,7 @@ int main(int argc, char* argv[]) {
 		double dpu_time = ((double)(nb_perf_total / nr_of_dpus) / clocks_per_sec) * 1000;
 		// manual set for the average time
 		dpu_t.set(dpu_time);
+#endif 
 
 #ifdef PRINT
 		DPU_FOREACH(dpu_set, dpu) {
@@ -178,29 +193,38 @@ int main(int argc, char* argv[]) {
 		DPU_ASSERT(dpu_prepare_xfer(dpu, &reduce_args));
 		DPU_ASSERT(dpu_push_xfer(dpu, DPU_XFER_TO_DPU, "DPU_INPUT_ARGUMENTS", 0, sizeof(input_arguments[0]), DPU_XFER_DEFAULT));
 
-		
+
 		DPU_ASSERT(dpu_prepare_xfer(dpu, results));
 		DPU_ASSERT(dpu_push_xfer(dpu, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, reduce_args.transfer_size, DPU_XFER_DEFAULT));
 
-		// dpu_reduction_t.start();
-		DPU_ASSERT(dpu_launch(dpu, DPU_SYNCHRONOUS));
-		// dpu_reduction_t.stop();
+#ifndef SIMULATOR // method is not accurate in simulator
+		// start DPU execution time
+		dpu_reduction_t.start();
+#endif
 
+		// launch DPUs in synchronous mode (wait until complete)
+		DPU_ASSERT(dpu_launch(dpu, DPU_SYNCHRONOUS));
+
+#ifndef SIMULATOR
+		dpu_reduction_t.stop();
+#endif
 		// set output
 		q6_out = 0;
 		dpu_output_size = sizeof(uint64_t);
 		DPU_ASSERT(dpu_copy_from(dpu, DPU_MRAM_HEAP_POINTER_NAME, reduce_args.transfer_size, &q6_out, dpu_output_size));
 
+#ifdef SIMULATOR // timing information in simulation
 		// retrieve number of instructions
 		uint32_t red_nb_perf;
 		DPU_ASSERT(dpu_copy_from(dpu, "nb_perf", 0, &red_nb_perf, sizeof(uint32_t)));
-	
+
 		// retrieve DPU frequency
 		DPU_ASSERT(dpu_copy_from(dpu, "CLOCKS_PER_SEC", 0, &clocks_per_sec, sizeof(uint32_t)));
 		// assume 1 insturction per clock on averreage
 		double red_time = ((double)red_nb_perf / clocks_per_sec) * 1000;
 		// manual set for the average time
 		dpu_reduction_t.set(red_time);
+#endif
 
 #ifdef PRINT
 		DPU_ASSERT(dpu_log_read(dpu, stdout));
@@ -215,10 +239,8 @@ int main(int argc, char* argv[]) {
 	dpu_transfer_t.print("DPU TRANSFER TEST");
 	dpu_t.print("DPU EXECUTION TIME");
 	dpu_reduction_t.print("DPU REDUCTION TIME", q6_out);
-	
-	double total_dpu_time = dpu_transfer_t.time() +
-							dpu_t.time() +
-							dpu_reduction_t.time();
+
+	double total_dpu_time = dpu_transfer_t.time() + dpu_t.time() + dpu_reduction_t.time();
 
 	printf("Total DPU time: %f\n", total_dpu_time);
 

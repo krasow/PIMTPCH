@@ -2,6 +2,8 @@
 #define Q6_UPMEM_H
 #include "../common/q6_test.h"
 
+#define SIMULATOR
+
 #define NUM_DPUS        32
 #define NUM_TASKLETS    16
 #define BLOCK_SIZE_LOG2 4

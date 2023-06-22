@@ -31,6 +31,7 @@
 *.out
 *.app
 
+*.tab
 trace*
 *.txt
 core
@@ -39,3 +40,5 @@ core
 .vscode
 
 build
+data
+data*

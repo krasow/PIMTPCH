@@ -58,7 +58,6 @@ int main() {
             output[tasklet_id] += array[j];
         }
     }
-
 #ifdef PRINT
     printf("res output %lu from tasklet %d\n", output[tasklet_id], tasklet_id);
 #endif 
@@ -73,7 +72,6 @@ int main() {
     if (tasklet_id == 0) {
         mram_read((__mram_ptr void const*)(mram_base_addr), output, NUM_TASKLETS << elem_size_log2);
         for (unsigned int i = 0; i < NUM_TASKLETS; i++) {
-            printf("res: %lu\n", output[i]);
             sum += output[i];
         }
 

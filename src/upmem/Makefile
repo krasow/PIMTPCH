@@ -20,7 +20,7 @@ $(BUILDDIR)/q6_dpu: q6_test_dpu.c helper.c  | $(BUILDDIR)
 	dpu-upmem-dpurte-clang -O2 -Wall -DNR_TASKLETS=$(TASKLETS) q6_test_dpu.c helper.c -o $(BUILDDIR)/q6_dpu 
 
 $(BUILDDIR)/q6_reduce: reduction_dpu.c helper.c | $(BUILDDIR)
-	dpu-upmem-dpurte-clang -O2 -Wall -DNR_TASKLETS==$(TASKLETS) reduction_dpu.c helper.c -o $(BUILDDIR)/q6_reduce
+	dpu-upmem-dpurte-clang -O2 -Wall -DNR_TASKLETS=$(TASKLETS) reduction_dpu.c helper.c -o $(BUILDDIR)/q6_reduce
 
 $(BUILDDIR):
 	mkdir -p $(BUILDDIR)

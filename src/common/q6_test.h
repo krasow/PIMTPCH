@@ -7,7 +7,7 @@
 // #define DEBUG
 // #define PRINT
 
-#define __ROW
+#define __COL
 
 #define SEED			72
 #define PAGE_SIZE       4096
@@ -36,23 +36,39 @@
 
 
 #ifdef __ROW
-//size is 32 bytes 
+//size is 32 bytes alligned (one tuple)
+#define TUPLE_SIZE      32
 typedef struct data {
     uint32_t     l_shipdate;
     uint64_t  	 l_discount;
     uint64_t     l_quantity;
     uint64_t     l_extendedprice;
-    char         junk[4];
-}  data;
+} __attribute__((aligned(32))) data;
+
 #endif
 
 #ifdef __COL
+//one tuple is 28 bytes
+#define TUPLE_SIZE      28
+
 typedef struct data {
-    uint32_t     l_shipdate[NUM_TUPLES];
-    uint64_t  	 l_discount[NUM_TUPLES];
-    uint64_t     l_quantity[NUM_TUPLES];
-    uint64_t     l_extendedprice[NUM_TUPLES];
-} __attribute__((aligned(512))) data;
+    // data is used for memory management purposes
+    char         *data;
+
+    // different columns
+    uint32_t     *l_shipdate;
+    uint64_t  	 *l_discount;
+    uint64_t     *l_quantity;
+    uint64_t     *l_extendedprice;
+} data;
+
+// typedef struct data {
+//     uint32_t     l_shipdate[NUM_TUPLES];
+//     uint64_t  	 l_discount[NUM_TUPLES];
+//     uint64_t     l_quantity[NUM_TUPLES];
+//     uint64_t     l_extendedprice[NUM_TUPLES];
+// } __attribute__((aligned(512))) data;
+
 #endif
 
 data* retrieve();

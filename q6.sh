@@ -35,6 +35,7 @@ if [ "$TEST" = data ]; then
 elif [ "$TEST" = threadmp ]; then 
     for thread in 1 2 4 8 16 32 64 128 172
     do
+        echo "$thread threads"
         if [ -z ${__STDOUTFILE} ]; then
             OMP_NUM_THREADS=$thread ./build/cpu/q6 $ITERS 
         else

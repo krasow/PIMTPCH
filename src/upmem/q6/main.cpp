@@ -5,7 +5,7 @@
 #include <iostream>
 
 #include "q6_upmem.h"
-#include "../common/timer.h"
+#include "../../common/timer/timer.h"
 
 // dpu specific 
 #include <dpu>
@@ -25,13 +25,14 @@ int main(int argc, char* argv[]) {
 	uint32_t tests = (argc == 1) ? 1 : atoi(argv[1]);
 
 	// get from DATABASE stored
-	data* tups = retrieve();
+	lineitem* l_tups = NULL;
+	retrieve(&l_tups);
 
 	// init output
 	uint64_t q6_out = 0;
 
 #ifdef DEBUG
-	print_data(tups);
+	print_data(l_tups);
 #endif
 
 	// START UPMEM CODE 
@@ -87,7 +88,7 @@ int main(int argc, char* argv[]) {
 #ifdef __ROW
 		// transfer input table  
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &tups[tuples_per_dpu * idx_dpu];
+			void* temp_loc = &l_tups[tuples_per_dpu * idx_dpu];
 			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
 		}
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, total_mram_size, DPU_XFER_DEFAULT));
@@ -99,35 +100,35 @@ int main(int argc, char* argv[]) {
 #ifdef __COL
 		// transfer input table  
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &tups->l_shipdate[tuples_per_dpu * idx_dpu];
+			void* temp_loc = &l_tups->l_shipdate[tuples_per_dpu * idx_dpu];
 			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
 		}
-		uint32_t txf_size = tuples_per_dpu * sizeof(tups->l_shipdate[0]);
+		uint32_t txf_size = tuples_per_dpu * sizeof(l_tups->l_shipdate[0]);
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, txf_size, DPU_XFER_DEFAULT));
 		uint32_t total_heap_loc = txf_size;
 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &tups->l_discount[tuples_per_dpu * idx_dpu];
+			void* temp_loc = &l_tups->l_discount[tuples_per_dpu * idx_dpu];
 			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
 		}
-		txf_size = tuples_per_dpu * sizeof(tups->l_discount[0]);
+		txf_size = tuples_per_dpu * sizeof(l_tups->l_discount[0]);
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, total_heap_loc, txf_size, DPU_XFER_DEFAULT));
 		total_heap_loc += txf_size;
 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &tups->l_quantity[tuples_per_dpu * idx_dpu];
+			void* temp_loc = &l_tups->l_quantity[tuples_per_dpu * idx_dpu];
 			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
 		}
-		txf_size = tuples_per_dpu * sizeof(tups->l_quantity[0]);
+		txf_size = tuples_per_dpu * sizeof(l_tups->l_quantity[0]);
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, total_heap_loc, txf_size, DPU_XFER_DEFAULT));
 		total_heap_loc += txf_size;
 
 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &tups->l_extendedprice[tuples_per_dpu * idx_dpu];
+			void* temp_loc = &l_tups->l_extendedprice[tuples_per_dpu * idx_dpu];
 			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
 		}
-		txf_size = tuples_per_dpu * sizeof(tups->l_extendedprice[0]);
+		txf_size = tuples_per_dpu * sizeof(l_tups->l_extendedprice[0]);
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, total_heap_loc, txf_size, DPU_XFER_DEFAULT));
 		total_heap_loc += txf_size;
 
@@ -283,9 +284,9 @@ int main(int argc, char* argv[]) {
 	printf("Total DPU time: %f\n", total_dpu_time);
 
 #ifdef __COL
-	free(tups->data);
+	free(l_tups->data);
 #endif
-	free(tups);
+	free(l_tups);
 
 	DPU_ASSERT(dpu_free(dpu_set));
 	DPU_ASSERT(dpu_free(dpu_reduce));

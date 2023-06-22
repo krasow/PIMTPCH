@@ -1,6 +1,6 @@
 #ifndef Q6_UPMEM_H 
 #define Q6_UPMEM_H
-#include "../common/q6_test.h"
+#include "../../common/queries/q6.h"
 
 #define SIMULATOR
 

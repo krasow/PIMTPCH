@@ -1,20 +1,12 @@
-CC=clang++
-CFLAGS=-O3 -Ofast -march=native --std=c++11 -g -Wall -fopenmp
-LDFLAGS=-lomp -lm 
+# modify this
+QUERIES := q6
 
-COMMON_HOST=../common/shared_host.cpp
-SOURCE_HOST=main.cpp q6_baseline.cpp $(COMMON_HOST)
-BUILDDIR=../../build/cpu
-TARGETS=$(BUILDDIR)/q6
+BUILDDIR=./build
+.phony: all 
 
-.phony: all
-all: $(TARGETS)
-
-$(BUILDDIR)/q6: $(SOURCE_HOST) | $(BUILDDIR)
-	$(CC) $(CFLAGS) $(SOURCE_HOST) -o $(BUILDDIR)/q6 $(LDFLAGS)
-
-$(BUILDDIR):
-	mkdir -p $(BUILDDIR)
+all:
+	$(foreach t, $(QUERIES), $(MAKE) -C ./$(t) ;)
 
 clean:
+	$(foreach t, $(QUERIES), $(MAKE) clean -C ./$(t) ;)
 	rm -rf $(BUILDDIR)

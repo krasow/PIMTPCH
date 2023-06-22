@@ -1,13 +1,16 @@
+# modify this
+TESTS := cpu upmem
+
+
 BUILDDIR=./build
 SRCDIR=./src
-
-
-TESTS := cpu data upmem
+COMMON := common
 .phony: all 
 
 all:
+	$(MAKE) -C $(SRCDIR)/$(COMMON)
 	$(foreach t, $(TESTS), $(MAKE) -C $(SRCDIR)/$(t) ;)
 
 clean:
-	$(foreach t, $(TESTS), $(MAKE) clean -C $(SRCDIR)/$(t) ;)
+	$(foreach t, $(COMMON) $(TESTS), $(MAKE) clean -C $(SRCDIR)/$(t) ;)
 	rm -rf $(BUILDDIR)

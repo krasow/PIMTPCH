@@ -4,7 +4,7 @@
 #include <string>
 
 
-/*  class calculates average time 
+/*  class calculates average time
  *  calc_time::start()		: begins timer
  *  calc_time::stop() 		: stops timer and updates average time
  *  calc_time::set(double)	: manually set new iteration without calling start() and stop()

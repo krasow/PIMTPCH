@@ -5,12 +5,11 @@
 
 #include <defs.h>
 #include <mram.h>
-#include <mram_unaligned.h>
 #include <alloc.h>
 #include <perfcounter.h>
 #include <handshake.h>
 #include <barrier.h>
-#include <perfcounter.h>
+
 
 #include "q6_upmem.h"
 
@@ -42,7 +41,7 @@ int main() {
 
 
     uint64_t* output = (uint64_t*)mem_alloc(NUM_TASKLETS << elem_size_log2);
-    uint64_t* array =  (uint64_t*)mem_alloc(BLOCK_SIZE   << elem_size_log2);
+    uint64_t* array = (uint64_t*)mem_alloc(BLOCK_SIZE << elem_size_log2);
     output[tasklet_id] = 0;
 
 
@@ -52,7 +51,7 @@ int main() {
         uint32_t block_elems = (i + BLOCK_SIZE >= total_array_elements) ? (total_array_elements - i) : BLOCK_SIZE;
 
         mram_read((__mram_ptr void const*)(mram_base_addr + i), array, block_elems << elem_size_log2);
-    
+
         for (uint16_t j = 0; j < block_elems; j++) {
             // Reduction in each tasklet on local wram
             output[tasklet_id] += array[j];
@@ -65,7 +64,7 @@ int main() {
     // write local array to global mram
     mram_write(&output[tasklet_id], (__mram_ptr void*)(mram_base_addr + tasklet_id * elem_size), elem_size);
     barrier_wait(&my_barrier);
- 
+
     uint64_t sum = 0;
     // sum up the remaining elements where N = NUM_TASKLETS
     // reduces intra DPU communication by having one tasklet perform all work

@@ -9,14 +9,19 @@
 
 void retrieve(lineitem** l_tups) {
 	const uint64_t total_size = NUM_TUPLES * sizeof(lineitem);
+	std::string db = DATABASE;
+	db += "/lineitem.tbl";
+
 #ifdef __ROW
+	std::string db_bin = db + ".row.bin";
 	* l_tups = (lineitem*)malloc(total_size);
 	void* tuple_data = (void*)(*l_tups); // used in fread 
 	if (!tuple_data) exit(-1);
 #endif
 #ifdef __COL
+	std::string db_bin = db + ".bin";
 	// allocate data structure that manages the tuples
-	*l_tups = (lineitem*)malloc(sizeof(lineitem));
+	* l_tups = (lineitem*)malloc(sizeof(lineitem));
 	// allocate data for storing the tuples
 	char* tuple_data = (char*)malloc(total_size); // used in fread 
 	if (!tuple_data) exit(-1);
@@ -30,11 +35,7 @@ void retrieve(lineitem** l_tups) {
 	(*l_tups)->l_quantity = (uint64_t*)(tuple_data + total_heap_loc);
 	total_heap_loc += NUM_TUPLES * sizeof((*l_tups)->l_quantity[0]);
 	(*l_tups)->l_extendedprice = (uint64_t*)(tuple_data + total_heap_loc);
-
-	std::string db = DATABASE; 
-	db += "/lineitem.tbl";
-	std::string db_bin = db + ".bin";
-
+#endif
 
 	// check if there has been a binary file already produced from .tbl
 	// only passes if table was loaded to the system before
@@ -58,21 +59,21 @@ void retrieve(lineitem** l_tups) {
 	// hold an entire row from fgets
 	char buffer[1000];
 	// hold an entire row separated by pipe delimiter & heap allocation
-	char *elems[LINEITEM_COLUMNS-1];
-	for(uint16_t i=0; i< LINEITEM_COLUMNS; i++){
-		elems[i] = (char*) malloc(128);
+	char* elems[LINEITEM_COLUMNS - 1];
+	for (uint16_t i = 0; i < LINEITEM_COLUMNS; i++) {
+		elems[i] = (char*)malloc(128);
 	}
 
 	uint64_t curr_tuple = 0;
 	FILE* f = fopen(db.c_str(), "rb");
 	// goes thru all the tuples
-	while(fgets(buffer, sizeof(buffer), f) && curr_tuple < NUM_TUPLES) {
+	while (fgets(buffer, sizeof(buffer), f) && curr_tuple < NUM_TUPLES) {
 		uint16_t curr_elem = 0;
 		int bytes = 0;
 		// store one column from the buffer ("STORE THIS"|"NOT THIS"|)
 		char tmp[128];
 		// used to increment the buffer
-		char *loc_buffer = buffer;
+		char* loc_buffer = buffer;
 
 		// for each element in each tuple
 		while (sscanf(loc_buffer, "%[^`|`]|%n", tmp, &bytes) == 1 && curr_elem < LINEITEM_COLUMNS) {
@@ -80,23 +81,27 @@ void retrieve(lineitem** l_tups) {
 			curr_elem++;
 			loc_buffer += bytes;
 		}
-
-		// printf("%s\n", elems[10]);
-		(*l_tups)->l_shipdate[curr_tuple] 		= convert_date(elems[10]);
-		(*l_tups)->l_discount[curr_tuple] 		= (uint64_t)ceil(strtod(elems[6], &elems[6+1]) * 100); // double to int conversion
-		(*l_tups)->l_quantity[curr_tuple] 		= (uint64_t)(atoi(elems[3]));
-		(*l_tups)->l_extendedprice[curr_tuple] 	= (uint64_t)ceil(strtod(elems[5], &elems[5+1]));
-		
+#ifdef __ROW
+		(*l_tups)[curr_tuple].l_shipdate = convert_date(elems[10]);
+		(*l_tups)[curr_tuple].l_discount = (uint64_t)ceil(strtod(elems[6], &elems[6 + 1]) * 100); // double to int conversion
+		(*l_tups)[curr_tuple].l_quantity = (uint64_t)(atoi(elems[3]));
+		(*l_tups)[curr_tuple].l_extendedprice = (uint64_t)ceil(strtod(elems[5], &elems[5 + 1]));
+#endif
+#ifdef __COL
+		(*l_tups)->l_shipdate[curr_tuple] = convert_date(elems[10]);
+		(*l_tups)->l_discount[curr_tuple] = (uint64_t)ceil(strtod(elems[6], &elems[6 + 1]) * 100); // double to int conversion
+		(*l_tups)->l_quantity[curr_tuple] = (uint64_t)(atoi(elems[3]));
+		(*l_tups)->l_extendedprice[curr_tuple] = (uint64_t)ceil(strtod(elems[5], &elems[5 + 1]));
+#endif
 		curr_tuple++;
 	}
 	fclose(f);
 
 	// write the table to a binary file to avoid conversions
-	FILE *f_write = fopen(db_bin.c_str(), "wb");
+	FILE* f_write = fopen(db_bin.c_str(), "wb");
 	fwrite((void*)tuple_data, TUPLE_SIZE, curr_tuple, f_write);
 	printf("total tuples : %lu\n", curr_tuple);
 	fclose(f_write);
-#endif
 }
 
 

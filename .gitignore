@@ -43,3 +43,5 @@ build
 data
 data*
 database*
+sf1*
+*.tar.gz

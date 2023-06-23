@@ -99,10 +99,10 @@ uint64_t q6(const lineitem* l_tups)
 #pragma omp parallel for default(shared) reduction(+ : out) 
 	for (size_t i = 0; i < NUM_TUPLES; i++) {
 		uint64_t match = (l_tups->l_shipdate[i] >= Q6_DATE1)
-			&& (l_tups->l_shipdate[i] < Q6_DATE2)
-			&& (l_tups->l_discount[i] >= Q6_DISCOUNT1)
-			&& (l_tups->l_discount[i] <= Q6_DISCOUNT2)
-			&& (l_tups->l_quantity[i] < Q6_QUANTITY);
+			& (l_tups->l_shipdate[i] < Q6_DATE2)
+			& (l_tups->l_discount[i] >= Q6_DISCOUNT1)
+			& (l_tups->l_discount[i] <= Q6_DISCOUNT2)
+			& (l_tups->l_quantity[i] < Q6_QUANTITY);
 
 		out += match * (l_tups->l_extendedprice[i] * l_tups->l_discount[i]);
 	}

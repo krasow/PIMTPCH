@@ -1,5 +1,5 @@
 # modify this
-TESTS := cpu upmem
+TESTS := cpu
 
 
 BUILDDIR=./build

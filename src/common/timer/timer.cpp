@@ -19,7 +19,7 @@ void calc_time::set(double time) {
 }
 
 void calc_time::print(std::string test, uint64_t output) {
-	printf("%s with %d tuples with %d iterations\n", test.c_str(), NUM_TUPLES, this->iterations);
+	printf("%s with %d iterations\n", test.c_str(), this->iterations);
 	if (output != 0)  printf("test result: %lu\n", output);
 	printf("avg time: %f ms\n\n", this->average_time);
 }

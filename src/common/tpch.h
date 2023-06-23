@@ -7,13 +7,12 @@
 // #define DEBUG
 // #define PRINT
 
-#define __COL
+#define __ROW
 #define DATABASE		"/home/david/PIM_TPCH/database1"
 
 
 #define SEED			72
 #define PAGE_SIZE       4096
-#define NUM_TUPLES      (1<<25)
 
 
 #define divceil(n, m)   (((n)-1) / (m) + 1)

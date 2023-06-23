@@ -21,14 +21,14 @@ uint64_t q6(const lineitem* l_tups)
 	uint64_t out = 0;
 
 #pragma omp parallel for default(shared) reduction(+ : out) 
-	for (size_t i = 0; i < NUM_TUPLES; i++) {
-		uint64_t match = (l_tups[i].l_shipdate >= Q6_DATE1)
-			&& (l_tups[i].l_shipdate < Q6_DATE2)
-			&& (l_tups[i].l_discount >= Q6_DISCOUNT1)
-			&& (l_tups[i].l_discount <= Q6_DISCOUNT2)
-			&& (l_tups[i].l_quantity < Q6_QUANTITY);
+	for (size_t i = 0; i < l_tups->elements; i++) {
+		uint64_t match = (l_tups->data[i].l_shipdate >= Q6_DATE1)
+			&& (l_tups->data[i].l_shipdate < Q6_DATE2)
+			&& (l_tups->data[i].l_discount >= Q6_DISCOUNT1)
+			&& (l_tups->data[i].l_discount <= Q6_DISCOUNT2)
+			&& (l_tups->data[i].l_quantity < Q6_QUANTITY);
 
-		out += match * (l_tups[i].l_extendedprice * l_tups[i].l_discount);
+		out += match * (l_tups->data[i].l_extendedprice * l_tups->data[i].l_discount);
 
 	}
 	return out;
@@ -40,13 +40,13 @@ uint64_t q6(const lineitem* l_tups)
 uint64_t q6_naive(const lineitem* l_tups)
 {
 	uint64_t out = 0;
-	for (size_t i = 0; i < NUM_TUPLES; i++) {
-		if ((l_tups[i].l_shipdate >= Q6_DATE1)
-			&& (l_tups[i].l_shipdate < Q6_DATE2)
-			&& (l_tups[i].l_discount >= Q6_DISCOUNT1)
-			&& (l_tups[i].l_discount <= Q6_DISCOUNT2)
-			&& (l_tups[i].l_quantity < Q6_QUANTITY)) {
-			out += (l_tups[i].l_extendedprice * l_tups[i].l_discount);
+	for (size_t i = 0; i < l_tups->elements; i++) {
+		if ((l_tups->data[i].l_shipdate >= Q6_DATE1)
+			&& (l_tups->data[i].l_shipdate < Q6_DATE2)
+			&& (l_tups->data[i].l_discount >= Q6_DISCOUNT1)
+			&& (l_tups->data[i].l_discount <= Q6_DISCOUNT2)
+			&& (l_tups->data[i].l_quantity < Q6_QUANTITY)) {
+			out += (l_tups->data[i].l_extendedprice * l_tups->data[i].l_discount);
 		}
 	}
 	return out;
@@ -57,19 +57,19 @@ uint64_t q6_naive(const lineitem* l_tups)
 void q6_selectivity_print(const lineitem* l_tups)
 {
 	// estimate selectivity (non performant)
-	uint64_t l_shipdate1_cnt = 0, l_shipdate2_cnt = 0, 
-			 l_discount1_cnt = 0, l_discount2_cnt = 0, l_quantity_cnt = 0;
+	uint64_t l_shipdate1_cnt = 0, l_shipdate2_cnt = 0,
+		l_discount1_cnt = 0, l_discount2_cnt = 0, l_quantity_cnt = 0;
 
-	for (size_t i = 0; i < NUM_TUPLES; i++) {
-		if (l_tups[i].l_shipdate >= Q6_DATE1) {
+	for (size_t i = 0; i < l_tups->elements; i++) {
+		if (l_tups->data[i].l_shipdate >= Q6_DATE1) {
 			l_shipdate1_cnt += 1;
-			if (l_tups[i].l_shipdate < Q6_DATE2) {
+			if (l_tups->data[i].l_shipdate < Q6_DATE2) {
 				l_shipdate2_cnt += 1;
-				if (l_tups[i].l_discount >= Q6_DISCOUNT1) {
+				if (l_tups->data[i].l_discount >= Q6_DISCOUNT1) {
 					l_discount1_cnt += 1;
-					if (l_tups[i].l_discount >= Q6_DISCOUNT2) {
+					if (l_tups->data[i].l_discount >= Q6_DISCOUNT2) {
 						l_discount2_cnt += 1;
-						if (l_tups[i].l_quantity < Q6_QUANTITY) {
+						if (l_tups->data[i].l_quantity < Q6_QUANTITY) {
 							l_quantity_cnt += 1;
 						}
 					}
@@ -78,12 +78,12 @@ void q6_selectivity_print(const lineitem* l_tups)
 		}
 	}
 	// first number should be largest
-	printf("%lu %lu %lu %lu %lu \n", 	
-			l_shipdate1_cnt, 
-			l_shipdate2_cnt, 
-			l_discount1_cnt, 
-			l_discount2_cnt, 
-			l_quantity_cnt
+	printf("%lu %lu %lu %lu %lu \n",
+		l_shipdate1_cnt,
+		l_shipdate2_cnt,
+		l_discount1_cnt,
+		l_discount2_cnt,
+		l_quantity_cnt
 	);
 }
 #endif
@@ -97,7 +97,7 @@ uint64_t q6(const lineitem* l_tups)
 	uint64_t out = 0;
 
 #pragma omp parallel for default(shared) reduction(+ : out) 
-	for (size_t i = 0; i < NUM_TUPLES; i++) {
+	for (size_t i = 0; i < l_tups->elements; i++) {
 		uint64_t match = (l_tups->l_shipdate[i] >= Q6_DATE1)
 			& (l_tups->l_shipdate[i] < Q6_DATE2)
 			& (l_tups->l_discount[i] >= Q6_DISCOUNT1)
@@ -115,7 +115,7 @@ uint64_t q6(const lineitem* l_tups)
 uint64_t q6_naive(const lineitem* l_tups)
 {
 	uint64_t out = 0;
-	for (size_t i = 0; i < NUM_TUPLES; i++) {
+	for (size_t i = 0; i < l_tups->elements; i++) {
 		if ((l_tups->l_shipdate[i] >= Q6_DATE1)
 			&& (l_tups->l_shipdate[i] < Q6_DATE2)
 			&& (l_tups->l_discount[i] >= Q6_DISCOUNT1)
@@ -132,10 +132,10 @@ uint64_t q6_naive(const lineitem* l_tups)
 void q6_selectivity_print(const lineitem* l_tups)
 {
 	// estimate selectivity (non performant)
-	uint64_t l_shipdate1_cnt = 0, l_shipdate2_cnt = 0, 
-			 l_discount1_cnt = 0, l_discount2_cnt = 0, l_quantity_cnt = 0;
+	uint64_t l_shipdate1_cnt = 0, l_shipdate2_cnt = 0,
+		l_discount1_cnt = 0, l_discount2_cnt = 0, l_quantity_cnt = 0;
 
-	for (size_t i = 0; i < NUM_TUPLES; i++) {
+	for (size_t i = 0; i < l_tups->elements; i++) {
 		if (l_tups->l_shipdate[i] >= Q6_DATE1) {
 			l_shipdate1_cnt += 1;
 			if (l_tups->l_shipdate[i] < Q6_DATE2) {
@@ -153,12 +153,12 @@ void q6_selectivity_print(const lineitem* l_tups)
 		}
 	}
 	// first number should be largest
-	printf("%lu %lu %lu %lu %lu \n", 	
-			l_shipdate1_cnt, 
-			l_shipdate2_cnt, 
-			l_discount1_cnt, 
-			l_discount2_cnt, 
-			l_quantity_cnt
+	printf("%lu %lu %lu %lu %lu \n",
+		l_shipdate1_cnt,
+		l_shipdate2_cnt,
+		l_discount1_cnt,
+		l_discount2_cnt,
+		l_quantity_cnt
 	);
 }
 #endif

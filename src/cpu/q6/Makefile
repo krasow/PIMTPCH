@@ -4,7 +4,7 @@ LDFLAGS=-lomp -lm
 
 BUILD_DIR=../../../build
 
-COMMON=$(BUILD_DIR)/common/timer.o $(BUILD_DIR)/common/tables.o
+COMMON=$(BUILD_DIR)/common/timer.o $(BUILD_DIR)/common/tables.o $(BUILD_DIR)/common/lineitem.o
 SOURCE=main.cpp q6_baseline.cpp
 
 CPU_BUILD_DIR=$(BUILD_DIR)/cpu

@@ -3,6 +3,8 @@
 
 #include "../tpch.h"
 
+#define LINEITEM_COLUMNS 16
+
 #ifdef __ROW
 //size is 32 bytes alligned (one tuple)
 #define TUPLE_SIZE      32

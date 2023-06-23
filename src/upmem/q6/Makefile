@@ -4,7 +4,7 @@ LDFLAGS=-lgomp -lm
 
 BUILD_DIR=../../../build
 
-COMMON=$(BUILD_DIR)/common/timer.o $(BUILD_DIR)/common/tables.o
+COMMON=$(BUILD_DIR)/common/timer.o $(BUILD_DIR)/common/tables.o $(BUILD_DIR)/common/lineitem.o
 SOURCE=main.cpp
 DPU_PKG=`dpu-pkg-config --cflags --libs dpu`
 TASKLETS=16

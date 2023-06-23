@@ -7,8 +7,8 @@
 // #define DEBUG
 // #define PRINT
 
-#define __ROW
-#define DATABASE		"/home/david/PIM_TPCH/lineitems_row.dat"
+#define __COL
+#define DATABASE		"/home/david/PIM_TPCH/database1"
 
 
 #define SEED			72

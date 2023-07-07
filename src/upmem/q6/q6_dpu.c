@@ -1,6 +1,6 @@
+// q6_dpu.c 
+// upmem dpu binary for TPCH Q6
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdint.h>
 #include <string.h>
 
 #include <defs.h>
@@ -12,7 +12,7 @@
 #include <barrier.h>
 #include <perfcounter.h> 
 
-#include "q6_upmem.h"
+#include <q6_upmem.h>
 
 __host dpu_arguments_t DPU_INPUT_ARGUMENTS;
 __host uint32_t nb_perf;
@@ -46,12 +46,14 @@ int main() {
 
 #ifdef __ROW
     // Initialize a local cache to store the MRAM block
-    lineitem* l_tups = (lineitem*)mem_alloc(TUPLE_SIZE << BLOCK_SIZE_LOG2);
+    lineitem* l_tups = (lineitem*)mem_alloc(sizeof(lineitem));
+
+    l_tups->data = (lineitem_data*)mem_alloc(TUPLE_SIZE << BLOCK_SIZE_LOG2);
     // split up total elements to reduce allocated WRAM (max 64KB)
     for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NUM_TASKLETS << BLOCK_SIZE_LOG2) {
         // Bound checking for the block
         uint32_t block_elems = (i + BLOCK_SIZE >= input_size_dpu_elems) ? (input_size_dpu_elems - i) : BLOCK_SIZE;
-        mram_read((__mram_ptr void const*)(mram_base_addr + (i << elem_size_log2)), l_tups, block_elems << elem_size_log2);
+        mram_read((__mram_ptr void const*)(mram_base_addr + (i << elem_size_log2)), l_tups->data, block_elems << elem_size_log2);
 
 
         // for (uint16_t j = 0; j < block_elems; j++) {
@@ -71,12 +73,12 @@ int main() {
         // }
 
         for (uint16_t j = 0; j < block_elems; j++) {
-            if (((l_tups + j)->l_shipdate >= Q6_DATE1)
-                && ((l_tups + j)->l_shipdate < Q6_DATE2)
-                && ((l_tups + j)->l_discount >= Q6_DISCOUNT1)
-                && ((l_tups + j)->l_discount <= Q6_DISCOUNT2)
-                && ((l_tups + j)->l_quantity < Q6_QUANTITY)) {
-                out[tasklet_id] += (l_tups + j)->l_extendedprice * (l_tups + j)->l_discount;
+            if ((l_tups->data[j].l_shipdate  >= Q6_DATE1)
+                && (l_tups->data[j].l_shipdate < Q6_DATE2)
+                && (l_tups->data[j].l_discount >= Q6_DISCOUNT1)
+                && (l_tups->data[j].l_discount <= Q6_DISCOUNT2)
+                && (l_tups->data[j].l_quantity < Q6_QUANTITY)) {
+                out[tasklet_id] += l_tups->data[j].l_extendedprice * l_tups->data[j].l_discount;
             }
         }
     }

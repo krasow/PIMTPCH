@@ -2,8 +2,8 @@
 #define Q6_CPU_H
 
 
-#include "../../common/queries/q6.h"
-#include "../../common/timer/timer.h"
+#include <common/q6.h>
+#include <common/timer.h>
 
 uint64_t q6(const lineitem* l_tups);
 uint64_t q6_naive(const lineitem* l_tups);

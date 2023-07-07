@@ -1,19 +1,18 @@
-// main.cpp
-// upmem main for TPCH Q6
+// tpch_q1_test_host
+#include <stdio.h>
+#include <assert.h>
 #include <string>
 #include <iostream>
 
-#include <stdio.h>
-#include <assert.h>
-
-#include <q6_upmem.h>
+#include <q1_upmem.h>
 #include <common/timer.h>
+#include <common/hmap.h>
 
 // dpu specific 
 #include <dpu>
 
 #ifndef DPU_BINARY
-#define DPU_BINARY "./build/upmem/q6_dpu"
+#define DPU_BINARY "./build/upmem/q1_dpu"
 #define DPU_REDUCE_BINARY "./build/upmem/common/reduce"
 #endif
 
@@ -31,7 +30,7 @@ int main(int argc, char* argv[]) {
 	retrieve(&l_tups);
 
 	// init output
-	uint64_t q6_out = 0;
+	uint64_t q1_out = 0;
 
 #ifdef DEBUG
 	print_data(l_tups);
@@ -246,10 +245,10 @@ int main(int argc, char* argv[]) {
 		dpu_reduction_t.stop();
 #endif
 		// set output
-		q6_out = 0;
+		q1_out = 0;
 		dpu_output_size = sizeof(uint64_t);
 		DPU_FOREACH(dpu_reduce, dpu) {
-			DPU_ASSERT(dpu_copy_from(dpu, DPU_MRAM_HEAP_POINTER_NAME, reduce_args.transfer_size, &q6_out, dpu_output_size));
+			DPU_ASSERT(dpu_copy_from(dpu, DPU_MRAM_HEAP_POINTER_NAME, reduce_args.transfer_size, &q1_out, dpu_output_size));
 		}
 #ifdef SIMULATOR // timing information in simulation
 		// retrieve number of instructions
@@ -270,7 +269,7 @@ int main(int argc, char* argv[]) {
 		DPU_FOREACH(dpu_reduce, dpu) {
 			DPU_ASSERT(dpu_log_read(dpu, stdout));
 		}
-		std::cout << "Result from reduction: " << q6_out << std::endl;
+		std::cout << "Result from reduction: " << q1_out << std::endl;
 #endif 
 
 		free(results);
@@ -279,12 +278,13 @@ int main(int argc, char* argv[]) {
 
 	dpu_transfer_t.print("DPU TRANSFER TEST");
 	dpu_t.print("DPU EXECUTION TIME");
-	dpu_reduction_t.print("DPU REDUCTION TIME", q6_out);
+	dpu_reduction_t.print("DPU REDUCTION TIME", q1_out);
 
 	double total_dpu_time = dpu_transfer_t.time() + dpu_t.time() + dpu_reduction_t.time();
 
 	printf("Total DPU time: %f\n", total_dpu_time);
 
+	
 	table_free(&l_tups);
 
 	DPU_ASSERT(dpu_free(dpu_set));

@@ -7,9 +7,10 @@
 // #define DEBUG
 // #define PRINT
 
-#define __ROW
+#define __COL
 #define DATABASE		"/home/david/PIM_TPCH/database1"
 
+#define MAX_TUPLES       (1<<25)
 
 #define SEED			72
 #define PAGE_SIZE       4096
@@ -23,5 +24,8 @@
 #ifndef  __ROW
 #define __COL 
 #endif
+
+typedef unsigned char uchar_t;
+typedef uint64_t addr_t;
 
 #endif

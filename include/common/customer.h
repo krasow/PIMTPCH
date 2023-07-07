@@ -1,26 +1,27 @@
-#ifndef LINEITEM_H 
-#define LINEITEM_H
+#ifndef CUSTOMER_H 
+#define CUSTOMER_H
 
-#include "../tpch.h"
+#include "tpch.h"
 
-#define LINEITEM_COLUMNS 16
+#define CUSTOMER_COLUMNS 16
 #define MAX_TUPLES       (1<<25)
 
 #ifdef __ROW
 //size is 32 bytes alligned (one tuple)
 #define TUPLE_SIZE      32
-typedef struct lineitem_data {
+typedef struct customer_data {
     uint32_t     l_shipdate;
     uint64_t  	 l_discount;
+
     uint64_t     l_quantity;
     uint64_t     l_extendedprice;
-} __attribute__((aligned(32))) lineitem_data;
+} __attribute__((aligned(32))) customer_data;
 
-typedef struct lineitem {
+typedef struct customer {
     // data is used for memory management purposes
-    lineitem_data*  data;
+    customer_data*  data;
     uint32_t        elements;
-} lineitem;
+} customer;
 
 #endif
 
@@ -28,7 +29,7 @@ typedef struct lineitem {
 //one tuple is 28 bytes
 #define TUPLE_SIZE      28
 
-typedef struct lineitem {
+typedef struct customer {
     // data is used for memory management purposes
     char*     data;
     uint32_t  elements;
@@ -38,11 +39,11 @@ typedef struct lineitem {
     uint64_t* l_discount;
     uint64_t* l_quantity;
     uint64_t* l_extendedprice;
-} lineitem;
+} customer;
 
 #endif
 
-void retrieve(lineitem** l_tups);
-void print_data(lineitem* l_tups);
+void retrieve(customer** c_tups);
+void print_data(customer* c_tups);
 
 #endif

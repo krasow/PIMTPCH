@@ -1,5 +1,5 @@
 // main.cpp for cpu test
-#include "q6_cpu.h"
+#include <q6_cpu.h>
 #include <omp.h>
 
 int main(int argc, char* argv[]) {
@@ -40,12 +40,7 @@ int main(int argc, char* argv[]) {
 	cpu_t.print("CPU VECTORIZED OPENMP", tpch_q6_sum);
 
 
-
-	// free database
-#ifdef __COL
-	free(l_tups->data);
-#endif
-	free(l_tups);
+	table_free(&l_tups);
 
 	return 0;
 }

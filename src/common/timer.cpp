@@ -1,7 +1,7 @@
 #include <sys/time.h>
 
-#include "../tpch.h"
-#include "timer.h"
+#include <common/tpch.h>
+#include <common/timer.h>
 
 void calc_time::start() {
 	gettimeofday(&startTime, NULL);

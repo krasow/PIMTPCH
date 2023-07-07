@@ -1,24 +1,27 @@
+### Modify here ###
+PROJECT=/home/david/PIM_TPCH
+TARGETS=lineitem tables timer hmap
+
+### Leave alone ###
 CC=clang++
-CFLAGS=-O3 -Ofast -march=native --std=c++11 -c -g -Wall
+CFLAGS=-O3 -Ofast -march=native -c -g -Wall
+LDFLAGS=-I $(PROJECT)/include
 
-BUILDDIR=../../build/common
+BUILD_DIR=$(PROJECT)/build/common
 
-TARGETS=$(BUILDDIR)/tables.o $(BUILDDIR)/timer.o $(BUILDDIR)/lineitem.o 
-
+BINS=$(addprefix $(PROJECT)/build/common/, $(TARGETS))
 .phony: all 
-all: $(TARGETS) 
+all: $(BINS) 
 
-$(BUILDDIR)/timer.o:: timer/timer.cpp | $(BUILDDIR)
-	$(CC) $(CFLAGS) timer/timer.cpp -o $(BUILDDIR)/timer.o 
+$(BUILD_DIR)/%: %.cpp | $(BUILD_DIR)
+	$(CC) $(CFLAGS) --std=c++11 $< -o $@ $(LDFLAGS)
 
-$(BUILDDIR)/tables.o: tables/tables.cpp  | $(BUILDDIR)
-	$(CC) $(CFLAGS) tables/tables.cpp -o $(BUILDDIR)/tables.o 
+$(BUILD_DIR)/%: %.c | $(BUILD_DIR)
+	clang $(CFLAGS)  $< -o $@ $(LDFLAGS)
 
-$(BUILDDIR)/lineitem.o: tables/lineitem.cpp  | $(BUILDDIR)
-	$(CC) $(CFLAGS) tables/lineitem.cpp -o $(BUILDDIR)/lineitem.o
 
-$(BUILDDIR):
-	mkdir -p $(BUILDDIR)
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
 
 clean:
-	rm -rf $(BUILDDIR)
+	rm -rf $(BUILD_DIR)

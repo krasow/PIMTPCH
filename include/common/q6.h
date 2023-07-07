@@ -1,11 +1,8 @@
 #ifndef Q6_H 
 #define Q6_H
 
-#include <stdlib.h>
-#include <stdint.h>
-
-#include "../tpch.h"
-#include "../tables/lineitem.h"
+#include "tpch.h"
+#include "lineitem.h"
 
 // Q6 query selectivity 
 #define Q6_DATE1        757382400  // "1994-01-01"

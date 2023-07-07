@@ -10,8 +10,7 @@
 #include <handshake.h>
 #include <barrier.h>
 
-
-#include "q6_upmem.h"
+#include <q6_upmem.h>
 
 __host dpu_arguments_t DPU_INPUT_ARGUMENTS;
 __host uint32_t nb_perf;

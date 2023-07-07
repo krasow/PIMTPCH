@@ -1,16 +1,19 @@
-# modify this
-TESTS := cpu
+### Modify here ###
+TESTS := cpu upmem
+### Leave alone ###
 
-
-BUILDDIR=./build
+BUILD_DIR=./build
 SRCDIR=./src
 COMMON := common
-.phony: all 
 
-all:
+.phony: all 
+all: | $(BUILD_DIR)
 	$(MAKE) -C $(SRCDIR)/$(COMMON)
 	$(foreach t, $(TESTS), $(MAKE) -C $(SRCDIR)/$(t) ;)
 
+$(BUILD_DIR):
+	mkdir -p $(BUILD_DIR)
+
 clean:
 	$(foreach t, $(COMMON) $(TESTS), $(MAKE) clean -C $(SRCDIR)/$(t) ;)
-	rm -rf $(BUILDDIR)
+	rm -rf $(BUILD_DIR)

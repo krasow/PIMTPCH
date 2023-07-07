@@ -1,5 +1,5 @@
 // main.cpp for cpu test
-#include <q1_cpu.h>
+#include <q3_cpu.h>
 #include <omp.h>
 
 int main(int argc, char* argv[]) {
@@ -17,26 +17,29 @@ int main(int argc, char* argv[]) {
 	print_data(l_tups);
 #endif
 
-	uint64_t naive_tpch_q1_sum = 0;
+	
+	uint64_t naive_tpch_q3_sum = 0;
 	for (uint32_t i = 0; i < tests; i++) {
 		// run and time naive
 		cpu_t_naive.start();
-		naive_tpch_q1_sum = q1_naive(l_tups);
+		naive_tpch_q3_sum = q3_naive(l_tups);
 		cpu_t_naive.stop();
 	}
-	cpu_t_naive.print("CPU NAIVE", naive_tpch_q1_sum);
+	cpu_t_naive.print("CPU NAIVE", naive_tpch_q3_sum);
 
 
 
-	// uint64_t tpch_q1_sum = 0;
-	// for (uint32_t i = 0; i < tests; i++) {
-	// 	// run and time optimized
-	// 	cpu_t.start();
-	// 	tpch_q1_sum = q1(l_tups);
-	// 	cpu_t.stop();
-	// }
-	// cpu_t.print("CPU VECTORIZED OPENMP", tpch_q1_sum);
+	uint64_t tpch_q3_sum = 0;
+	for (uint32_t i = 0; i < tests; i++) {
+		// run and time optimized
+		cpu_t.start();
+		tpch_q3_sum = q3(l_tups);
+		cpu_t.stop();
+	}
+	cpu_t.print("CPU VECTORIZED OPENMP", tpch_q3_sum);
 
-	table_free(&l_tups);
+	free(l_tups->data);
+	free(l_tups);
+
 	return 0;
 }

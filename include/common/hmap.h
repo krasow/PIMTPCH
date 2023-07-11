@@ -59,7 +59,7 @@ struct tpch_hashtable;
  *      struct some_value *v;
  *
  *      static uint32_t         hash_from_key_fn( void *k );
- *      static int                  keys_equal_fn ( void *key1, void *key2 );
+ *      static int              keys_equal_fn ( void *key1, void *key2 );
  *
  *      h = create_hashtable(16, hash_from_key_fn, keys_equal_fn);
  *      k = (struct some_key *)     malloc(sizeof(struct some_key));
@@ -123,8 +123,8 @@ struct tpch_hashtable;
 	return (valuetype *) (tpch_htable_remove(htable, (addr_t)key, free_key)); \
     }
 
-
-
+uint32_t hash_fn(addr_t k); 
+int int_keys_equal_fn(addr_t key1, addr_t key2); 
 
 
 /* These cannot be inlined because they are referenced as fn ptrs */

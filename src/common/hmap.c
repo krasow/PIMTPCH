@@ -31,8 +31,11 @@
  SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-/* Modifications made by Jack Lange <jarusl@cs.northwestern.edu> */
-/* Further modifications by Kyle C. Hale 2014 <kh@u.northwestern.edu> */
+/* Modifications made by Jack Lange <jarusl@cs.northwestern.edu>
+   Further modifications by Kyle C. Hale 2014 <kh@u.northwestern.edu> 
+   Further modifications by David Krasowska <krasow@u.northwestern.edu>
+*/
+
 
 #include <common/hmap.h>
 
@@ -55,6 +58,31 @@ struct tpch_hashtable {
 
 
 /* HASH FUNCTIONS */
+
+uint32_t hash_fn(addr_t k) 
+{
+    // using PJW hash https://www.cs.hmc.edu/~geoff/classes/hmc.cs070.200101/homework10/hashfuncs.html
+    uint32_t h=0, g=0;
+    // The top 4 bits of h are all zero
+    h = (h << 4) + *(uint32_t*)k;    // shift h 4 bits left, add in k
+    g = h & 0xf0000000;              // get the top 4 bits of h
+    if (g != 0){                     // if the top 4 bits aren't zero,
+        h = h ^ (g >> 24);           // move them to the low end of h
+        h = h ^ g;
+    }                    
+    // The top 4 bits of h are again all zero
+    return h;   
+}
+
+
+// return 1 if equal
+int int_keys_equal_fn (addr_t key1, addr_t key2)
+{
+    if (*(uint32_t*)key1 == *(uint32_t*)key2) {
+        return 1;
+    }
+    return 0;
+}
 
 
 static inline uint32_t 

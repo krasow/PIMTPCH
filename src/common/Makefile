@@ -1,6 +1,6 @@
 ### Modify here ###
 PROJECT=/home/david/PIM_TPCH
-TARGETS=lineitem orders customer tables timer hmap
+TARGETS=lineitem orders customer tables timer
 
 ### Leave alone ###
 CC=clang++
@@ -17,7 +17,7 @@ $(BUILD_DIR)/%: %.cpp | $(BUILD_DIR)
 	$(CC) $(CFLAGS) --std=c++11 $< -o $@ $(LDFLAGS)
 
 $(BUILD_DIR)/%: %.c | $(BUILD_DIR)
-	clang $(CFLAGS)  $< -o $@ $(LDFLAGS)
+	clang $(CFLAGS) $< -o $@ $(LDFLAGS)
 
 
 $(BUILD_DIR):

@@ -5,7 +5,7 @@
 #include <common/q1.h>
 #include <common/timer.h>
 
-uint64_t q1(const lineitem* l_tups);
-uint64_t q1_naive(const lineitem* l_tups);
+void q1(struct tpch_hashtable *out, const lineitem * l_tups);
+void q1_naive(struct tpch_hashtable *out, const lineitem * l_tups);
 
 #endif

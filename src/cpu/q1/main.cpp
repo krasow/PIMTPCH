@@ -17,14 +17,18 @@ int main(int argc, char* argv[]) {
 	print_data(l_tups);
 #endif
 
-	uint64_t naive_tpch_q1_sum = 0;
+	// setup hash table
+	struct tpch_hashtable *out = NULL;
+
 	for (uint32_t i = 0; i < tests; i++) {
 		// run and time naive
 		cpu_t_naive.start();
-		naive_tpch_q1_sum = q1_naive(l_tups);
+		q1_naive(out, l_tups);
 		cpu_t_naive.stop();
+		// free hash table
+		// tpch_free_htable(out, 0, 0);
 	}
-	cpu_t_naive.print("CPU NAIVE", naive_tpch_q1_sum);
+	cpu_t_naive.print("CPU NAIVE");
 
 
 

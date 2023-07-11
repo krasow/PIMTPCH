@@ -18,7 +18,7 @@
 
 #define divceil(n, m)   (((n)-1) / (m) + 1)
 #define roundup(n, m)   ((n / m) * m + m)
-
+#define __PIPE          << " | " <<
 
 // if __ROW or __COL is not defined, __COL will be default
 #ifndef  __ROW

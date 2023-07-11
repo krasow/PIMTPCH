@@ -81,9 +81,9 @@ typedef struct lineitem {
     uint32_t* l_shipdate;
     uint32_t* l_commitdate;
     uint32_t* l_receiptdate;    // 78 bytes
-    uchar_t** l_shipinstruct;
-    uchar_t** l_shipmode;
-    uchar_t** l_comment;        // 160 bytes
+    uchar_t*  l_shipinstruct;
+    uchar_t*  l_shipmode;
+    uchar_t*  l_comment;        // 160 bytes
 } lineitem;
 
 #endif

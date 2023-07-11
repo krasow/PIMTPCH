@@ -3,7 +3,9 @@
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
+
 #include <iostream>
+
 #include <common/tables.h>
 #include <common/tpch.h>
 
@@ -36,10 +38,10 @@ void td_setup(table_desc* td,
     td->dates.cnt    = dates;
     td->strings.cnt  = strings;
 
-    td->bigInts.size = sizeof(uint64_t);
-    td->doubles.size = sizeof(uint64_t);
-    td->chars.size   = sizeof(uchar_t);
-    td->dates.size   = sizeof(uint32_t);
+    td->bigInts.size = sizeof(__BIGINT);
+    td->doubles.size = sizeof(__DOUBLE);
+    td->chars.size   = sizeof(__CHAR);
+    td->dates.size   = sizeof(__DATE);
     td->strings.size = 0;
     td->strings.sizes = string_szs;
 
@@ -121,4 +123,3 @@ void td_elem_free(td_elem* elem) {
         free(elem->sizes);
     }
 }
-

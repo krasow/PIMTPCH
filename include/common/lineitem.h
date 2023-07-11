@@ -28,9 +28,9 @@ CONVERSIONS USED
 
 BIGINT      -> uint64_t
 DATE        -> uint32_t in epoch format
-CHAR(x)     -> uchar_t[x] | x > 1
+CHAR(x)     -> uchar_t[x+1] | x > 1
 CHAR(1)     -> uchar_t
-VARCHAR(x)  -> uchar_t[x]
+VARCHAR(x)  -> uchar_t[x+1]
 DOUBLE      -> uint64_t
 
 */
@@ -61,29 +61,29 @@ typedef struct lineitem {
 
 #ifdef __COL
 //one tuple is 160 bytes
-#define TUPLE_SIZE      160
+#define LINEITEM_TUPLE_SIZE     160
 
 typedef struct lineitem {
     uint32_t  elements;
     table_desc td;
 
     // different columns
-    uint64_t* l_orderkey;
-    uint64_t* l_partkey;
-    uint64_t* l_suppkey;
-    uint64_t* l_linenumber;
-    uint64_t* l_quantity;
-    uint64_t* l_extendedprice;
-    uint64_t* l_discount;
-    uint64_t* l_tax;            // 64 bytes
-    uchar_t*  l_returnflag;
-    uchar_t*  l_linestatus;     // 66 bytes
-    uint32_t* l_shipdate;
-    uint32_t* l_commitdate;
-    uint32_t* l_receiptdate;    // 78 bytes
-    uchar_t*  l_shipinstruct;
-    uchar_t*  l_shipmode;
-    uchar_t*  l_comment;        // 160 bytes
+    __BIGINT*   l_orderkey;
+    __BIGINT*   l_partkey;
+    __BIGINT*   l_suppkey;
+    __BIGINT*   l_linenumber;
+    __BIGINT*   l_quantity;
+    __DOUBLE*   l_extendedprice;
+    __DOUBLE*   l_discount;
+    __DOUBLE*   l_tax;            // 64 bytes
+    __CHAR*     l_returnflag;
+    __CHAR*     l_linestatus;     // 66 bytes
+    __DATE*     l_shipdate;
+    __DATE*     l_commitdate;
+    __DATE*     l_receiptdate;    // 78 bytes
+    __DBSTRING* l_shipinstruct;
+    __DBSTRING* l_shipmode;
+    __DBSTRING* l_comment;        // 160 bytes
 } lineitem;
 
 #endif

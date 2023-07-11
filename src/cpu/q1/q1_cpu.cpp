@@ -26,63 +26,34 @@ order by
 
 #include <q1_cpu.h>
 
-#ifdef __ROW
-// naive column-wise implementation
-uint64_t q1_naive(const lineitem* l_tups)
-{
-	size_t i;
-	hmap_u16_t* out = hmap_u16_init(65536, 48);
-
-	//scan lineitem
-	for (i = 0; i < l_tups->elements; i++) {
-		if (l_tups->data[i].l_shipdate <= Q1_DATE1) {
-			uint16_t key = (l_tups->data[i].l_returnflag << 8)
-				| l_tups->data[i].l_linestatus;
-			val_t val = hmap_u16_put(out, key);
-			val_i64(val, 0) += 1;
-			val_f64(val, 8) += l_tups->data[i].l_quantity;
-			val_f64(val, 16) += l_tups->data[i].l_extendedprice;
-			val_f64(val, 24) += l_tups->data[i].l_discount;
-			double tmp1 = l_tups->data[i].l_extendedprice
-				* (1.0 - l_tups->data[i].l_discount);
-			val_f64(val, 32) += tmp1;
-			double tmp2 = tmp1 * (1.0 + l_tups->data[i].l_tax);
-			val_f64(val, 40) += tmp2;
-		}
-	}
-	return out;
-}
-#endif
-
 
 #ifdef __COL
 // naive column-wise implementation
-uint64_t q1_naive(const lineitem * l_tups)
-{
-	/*
-	size_t i;
-	hmap_u16_t* out = hmap_u16_init(65536, 48);
+// uint64_t q1_naive(const lineitem * l_tups)
+// {
 
-	//scan lineitem
-	for (i = 0; i < l_tups->elements; i++) {
-		if (l_tups->l_shipdate[i] <= Q1_DATE1) {
-			uint16_t key = (l_tups->l_returnflag[i] << 8)
-				| l_tups->l_linestatus[i];
-			val_t val = hmap_u16_put(out, key);
-			val_i64(val, 0) += 1;
-			val_f64(val, 8) += l_tups->l_quantity[i];
-			val_f64(val, 16) += l_tups->l_extendedprice[i];
-			val_f64(val, 24) += l_tups->l_discount[i];
-			double tmp1 = l_tups->l_extendedprice[i]
-				* (1.0 - l_tups->l_discount[i]);
-			val_f64(val, 32) += tmp1;
-			double tmp2 = tmp1 * (1.0 + l_tups->l_tax[i]);
-			val_f64(val, 40) += tmp2;
-		}
-	}
-	return out;
-	*/
-	return 1;
-}
+// 	size_t i;
+// 	hmap_u16_t* out = hmap_u16_init(65536, 48);
+
+// 	//scan lineitem
+// 	for (i = 0; i < l_tups->elements; i++) {
+// 		if (l_tups->l_shipdate[i] <= Q1_DATE1) {
+// 			uint16_t key = (l_tups->l_returnflag[i] << 8)
+// 				| l_tups->l_linestatus[i];
+// 			val_t val = hmap_u16_put(out, key);
+// 			val_i64(val, 0) += 1;
+// 			val_f64(val, 8) += l_tups->l_quantity[i];
+// 			val_f64(val, 16) += l_tups->l_extendedprice[i];
+// 			val_f64(val, 24) += l_tups->l_discount[i];
+// 			double tmp1 = l_tups->l_extendedprice[i]
+// 				* (1.0 - l_tups->l_discount[i]);
+// 			val_f64(val, 32) += tmp1;
+// 			double tmp2 = tmp1 * (1.0 + l_tups->l_tax[i]);
+// 			val_f64(val, 40) += tmp2;
+// 		}
+// 	}
+// 	return out;
+
+// }
 #endif
 

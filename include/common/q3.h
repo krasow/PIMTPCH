@@ -1,5 +1,5 @@
-#ifndef Q1_H 
-#define Q1_H
+#ifndef Q3_H 
+#define Q3_H
 
 #include "tpch.h"
 #include "lineitem.h"

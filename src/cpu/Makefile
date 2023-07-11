@@ -1,6 +1,6 @@
 ### Modify here ###
 PROJECT=/home/david/PIM_TPCH
-QUERIES := q6 q1
+QUERIES := q1 q3 q6 
 ### Leave alone ###
 
 CC=clang++
@@ -9,7 +9,7 @@ LDFLAGS=-lomp -lm  -I $(PROJECT)/include
 
 BUILD_DIR=$(PROJECT)/build/cpu
 
-COMMON_OBJ=lineitem tables timer hmap
+COMMON_OBJ=lineitem orders customer tables timer hmap
 COMMON=$(addprefix $(PROJECT)/build/common/, $(COMMON_OBJ))
 
 BINS=$(addprefix $(BUILD_DIR)/, $(QUERIES))

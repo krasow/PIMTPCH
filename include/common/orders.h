@@ -1,56 +1,63 @@
 #ifndef ORDERS_H 
 #define ORDERS_H
+/* Table schmema for lineitem
+https://github.com/dimitri/tpch-citus/blob/master/schema/tpch-schema.sql
+
+CREATE TABLE orders
+(
+    o_orderkey       BIGINT not null,
+    o_custkey        BIGINT not null,
+    o_orderstatus    CHAR(1) not null,
+    o_totalprice     DOUBLE PRECISION not null,
+    o_orderdate      DATE not null,
+    o_orderpriority  CHAR(15) not null,  
+    o_clerk          CHAR(15) not null, 
+    o_shippriority   INTEGER not null,
+    o_comment        VARCHAR(79) not null
+);
+/--------------------------------------------------/
+
+CONVERSIONS USED 
+
+BIGINT      -> uint64_t
+DATE        -> uint32_t in epoch format
+CHAR(x)     -> uchar_t[x+1] | x > 1
+CHAR(1)     -> uchar_t
+VARCHAR(x)  -> uchar_t[x+1]
+DOUBLE      -> uint64_t
+
+*/
+
+
 
 #include "tpch.h"
+#include "tables.h"
 
-#define ORDERS_COLUMNS 16
-#define MAX_TUPLES       (1<<25)
-
-#ifdef __ROW
-#define TUPLE_SIZE      32
-typedef struct orders_data {
-    uint64_t  	 o_orderkey;
-    uint64_t     o_orderkey;
-    u_char       o_orderstatus;
-    uint64_t     o_totalprice;
-    uint32_t     o_orderdate;
-    u_char       o_orderpriority[16];
-    u_char       o_clerk[16];
-    uint32_t     o_shippriority;
-    u_char       o_comment[80];
-}  orders_data;
-
-typedef struct orders {
-    // data is used for memory management purposes
-    orders_data*  data;
-    uint32_t      elements;
-} orders;
-
-#endif
+#define ORDERS_COLUMNS      9
 
 #ifdef __COL
-#define TUPLE_SIZE      28
+#define ORDERS_TUPLE_SIZE   148
 
 typedef struct orders {
-    // data is used for memory management purposes
-    char*     data;
     uint32_t  elements;
+    table_desc td;
 
     // different columns
-    uint64_t*  	 o_orderkey;
-    uint64_t*    o_orderkey;
-    char*        o_orderstatus;
-    uint64_t*    o_totalprice;
-    uint32_t*    o_orderdate;
-    u_char*      o_orderpriority[16];
-    u_char*      o_clerk[16];
-    uint32_t*    o_shippriority;
-    u_char*      o_comment[80];
+    __BIGINT*  	 o_orderkey;
+    __BIGINT*    o_custkey;
+    __CHAR*      o_orderstatus;
+    __DOUBLE*    o_totalprice;
+    __DATE*      o_orderdate;
+    __DBSTRING*  o_orderpriority;
+    __DBSTRING*  o_clerk;
+    __BIGINT*    o_shippriority;
+    __DBSTRING*  o_comment;
 } orders;
 
 #endif
 
 void retrieve(orders** o_tups);
 void print_data(orders* o_tups);
+void table_free(orders** o_tups);
 
 #endif

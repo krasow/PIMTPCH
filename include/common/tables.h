@@ -3,23 +3,32 @@
 
 #include "tpch.h"
 
+#define MAX_TUPLES       (1<<25)
+
 #define COLUMN_BUFFER 128
 #define ROW_BUFFER 1000
+
+#define __BIGINT    uint64_t
+#define __DOUBLE    uint64_t
+#define __CHAR      uchar_t
+#define __DATE      uint32_t
+#define __DBSTRING  uchar_t
+
+
 
 #define GET_STRING_SIZE(table, string_id)       table->td.strings.sizes[string_id]
 #define GET_STRING(table, column, string_id, i) &table->column[GET_STRING_SIZE(table, string_id) * i]
 
-#define BIGINT_MEMSET(table, id)    (uint64_t*)(table)->td.bigInts.items[id]
-#define DOUBLE_MEMSET(table, id)    (uint64_t*)(table)->td.doubles.items[id]
-#define CHAR_MEMSET(table, id)      (uchar_t*)(table)->td.chars.items[id]
-#define DATE_MEMSET(table, id)      (uint32_t*)(table)->td.dates.items[id]
-#define STRING_MEMSET(table, id)    (uchar_t*)(table)->td.strings.items[id]
+#define BIGINT_MEMSET(table, id)    (__BIGINT*) (table)->td.bigInts.items[id]
+#define DOUBLE_MEMSET(table, id)    (__DOUBLE*) (table)->td.doubles.items[id]
+#define CHAR_MEMSET(table, id)      (__CHAR*)   (table)->td.chars.items[id]
+#define DATE_MEMSET(table, id)      (__DATE*)   (table)->td.dates.items[id]
+#define STRING_MEMSET(table, id)    (__DBSTRING*)(table)->td.strings.items[id]
 
-#define BIGINT_SET(val)             (uint64_t)(atoi(val))
-#define DOUBLE_SET(val, scale)      (uint64_t)ceil(strtod(val, &val + COLUMN_BUFFER) * scale)
+#define BIGINT_SET(val)             (__BIGINT)(atoi(val))
+#define DOUBLE_SET(val, scale)      (__DOUBLE)ceil(strtod(val, &val + COLUMN_BUFFER) * scale)
 #define CHAR_SET(val)               val[0]
 #define DATE_SET(val)               convert_date(val)
-
 
 typedef struct td_elem {
     addr_t*  items;
@@ -47,7 +56,6 @@ void td_setup(table_desc* td,
 void td_allocate(table_desc* td);
 void td_reallocate(table_desc* td, uint64_t tuple_cnt);
 void td_free(table_desc* td);
-
 
 uint32_t convert_date(char* date);
 

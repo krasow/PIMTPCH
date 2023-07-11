@@ -1,6 +1,6 @@
 ### Modify here ###
 PROJECT=/home/david/PIM_TPCH
-TARGETS=lineitem tables timer hmap
+TARGETS=lineitem orders customer tables timer hmap
 
 ### Leave alone ###
 CC=clang++

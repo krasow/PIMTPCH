@@ -35,7 +35,7 @@ int main() {
     // Address of the current processing block in MRAM
     uint32_t mram_base_addr = (uint32_t)DPU_MRAM_HEAP_POINTER;
 
-    uint16_t elem_size_log2 = find_log2(TUPLE_SIZE);
+    uint16_t elem_size_log2 = find_log2(LINEITEM_TUPLE_SIZE);
     uint32_t input_size_dpu_elems = input_size_dpu_bytes >> elem_size_log2;
 
     uint16_t tasklet_output_size = sizeof(uint64_t);
@@ -48,7 +48,7 @@ int main() {
     // Initialize a local cache to store the MRAM block
     lineitem* l_tups = (lineitem*)mem_alloc(sizeof(lineitem));
 
-    l_tups->data = (lineitem_data*)mem_alloc(TUPLE_SIZE << BLOCK_SIZE_LOG2);
+    l_tups->data = (lineitem_data*)mem_alloc(LINEITEM_TUPLE_SIZE << BLOCK_SIZE_LOG2);
     // split up total elements to reduce allocated WRAM (max 64KB)
     for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NUM_TASKLETS << BLOCK_SIZE_LOG2) {
         // Bound checking for the block
@@ -88,7 +88,7 @@ int main() {
 #ifdef __COL
     // Initialize a local cache to store the MRAM block
     lineitem* l_tups = (lineitem*)mem_alloc(sizeof(lineitem));
-    char* storage = (char*)mem_alloc(TUPLE_SIZE << BLOCK_SIZE_LOG2); // sizeof(TUPLE) * BLOCK_SIZE
+    char* storage = (char*)mem_alloc(LINEITEM_TUPLE_SIZE << BLOCK_SIZE_LOG2); // sizeof(TUPLE) * BLOCK_SIZE
     l_tups->l_shipdate = (uint32_t*)storage;
     uint32_t total_heap_loc = BLOCK_SIZE << 2;
     l_tups->l_discount = (uint64_t*)(storage + total_heap_loc);
@@ -97,7 +97,7 @@ int main() {
     total_heap_loc += BLOCK_SIZE << 3;
     l_tups->l_extendedprice = (uint64_t*)(storage + total_heap_loc);
 
-    // assert((total_heap_loc + (BLOCK_SIZE << 3))  ==  (TUPLE_SIZE << BLOCK_SIZE_LOG2));
+    // assert((total_heap_loc + (BLOCK_SIZE << 3))  ==  (LINEITEM_TUPLE_SIZE << BLOCK_SIZE_LOG2));
 
     // split up total elements to reduce allocated WRAM (max 64KB)
     for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NUM_TASKLETS << BLOCK_SIZE_LOG2) {

@@ -56,7 +56,7 @@ int main(int argc, char* argv[]) {
 		const uint64_t tuples_per_dpu = divceil(l_tups->elements, nr_of_dpus);
 
 		// bytes per DPU 
-		const uint64_t total_mram_size = tuples_per_dpu * TUPLE_SIZE;
+		const uint64_t total_mram_size = tuples_per_dpu * LINEITEM_TUPLE_SIZE;
 
 
 		// Input arguments
@@ -65,7 +65,7 @@ int main(int argc, char* argv[]) {
 			input_arguments[i].size = total_mram_size;
 			input_arguments[i].transfer_size = total_mram_size;
 		}
-		input_arguments[nr_of_dpus - 1].size = (l_tups->elements * TUPLE_SIZE - total_mram_size * (nr_of_dpus - 1));
+		input_arguments[nr_of_dpus - 1].size = (l_tups->elements * LINEITEM_TUPLE_SIZE - total_mram_size * (nr_of_dpus - 1));
 		input_arguments[nr_of_dpus - 1].transfer_size = total_mram_size;
 
 

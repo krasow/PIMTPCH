@@ -27,14 +27,15 @@ order by
 #include <q1_cpu.h>
 
 #ifdef __COL
-DEFINE_HASHTABLE_INSERT(q1_insert, uint16_t*, values*);
+DEFINE_HASHTABLE_INSERT(q1_insert, uint16_t, values*);
 
 // naive column-wise implementation
-void q1_naive(struct tpch_hashtable *out, const lineitem * l_tups)
+void q1_naive(struct tpch_hashtable **out, const lineitem * l_tups)
 {
 	struct values *val;
+	bool ins = 0;
 
-	out = tpch_create_htable(65536, hash_fn, int_keys_equal_fn);  // hmap_u16_t* out = hmap_u16_init(65536, 48);
+	*out = tpch_create_htable(65536, hash_fn, int_keys_equal_fn);  // hmap_u16_t* out = hmap_u16_init(65536, 48);
 	for (size_t i = 0; i < l_tups->elements; i++) {
 		//  l_shipdate <= date '1998-12-01'
 		if (l_tups->l_shipdate[i] <= Q1_DATE1) { 
@@ -42,8 +43,15 @@ void q1_naive(struct tpch_hashtable *out, const lineitem * l_tups)
 			uint16_t key = (l_tups->l_returnflag[i] << 8) 
 				| l_tups->l_linestatus[i];
 
-			val_malloc(val, 1, 5);
+			val = (values*)tpch_htable_search(*out,key);
 			
+			if(!val) {
+				val_malloc(val, 1, 5);
+				ins = 1;
+			} else {
+				ins = 0;
+			}
+
 			val_i64(val, 0) += 1;
 			val_f64(val, 0) += l_tups->l_quantity[i];
 			val_f64(val, 1) += l_tups->l_extendedprice[i];
@@ -53,7 +61,9 @@ void q1_naive(struct tpch_hashtable *out, const lineitem * l_tups)
 			val_f64(val, 3) += tmp1;
 			__DOUBLE tmp2 = tmp1 * (1 + l_tups->l_tax[i]);
 			val_f64(val, 4) += tmp2;
-			q1_insert(out, &key, val);
+			if (ins) {
+				q1_insert(*out, key, val);
+			}
 		}
 	}
 }

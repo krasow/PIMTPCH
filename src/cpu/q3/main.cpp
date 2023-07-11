@@ -24,14 +24,19 @@ int main(int argc, char* argv[]) {
 #endif
 
 	// print_data(c_tups);
-	uint64_t naive_tpch_q3_sum = 0;
+	__DOUBLE* naive_tpch_q3_out = NULL;
 	for (uint32_t i = 0; i < tests; i++) {
 		// run and time naive
 		cpu_t_naive.start();
-		naive_tpch_q3_sum = q3_naive(l_tups, o_tups, c_tups);
+		naive_tpch_q3_out = q3_naive(l_tups, o_tups, c_tups);
 		cpu_t_naive.stop();
+		
+		printf("ITERATION %d -----\n", i);
+		for (uint16_t j = 0; j < 10; j++) {
+			printf("%lu | ", naive_tpch_q3_out[j]);
+		}
 	}
-	cpu_t_naive.print("CPU NAIVE", naive_tpch_q3_sum);
+	cpu_t_naive.print("CPU NAIVE");
 
 
 
@@ -46,6 +51,7 @@ int main(int argc, char* argv[]) {
 
 	table_free(&l_tups);
 	table_free(&o_tups);
+	table_free(&c_tups);
 
 	return 0;
 }

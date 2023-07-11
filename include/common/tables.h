@@ -3,21 +3,9 @@
 
 #include "tpch.h"
 
-#define MAX_TUPLES       (1<<25)
 
 #define COLUMN_BUFFER 128
 #define ROW_BUFFER 1000
-
-#define __BIGINT    uint64_t
-#define __DOUBLE    uint64_t
-#define __CHAR      uchar_t
-#define __DATE      uint32_t
-#define __DBSTRING  uchar_t
-
-
-
-#define GET_STRING_SIZE(table, string_id)       table->td.strings.sizes[string_id]
-#define GET_STRING(table, column, string_id, i) &table->column[GET_STRING_SIZE(table, string_id) * i]
 
 #define BIGINT_MEMSET(table, id)    (__BIGINT*) (table)->td.bigInts.items[id]
 #define DOUBLE_MEMSET(table, id)    (__DOUBLE*) (table)->td.doubles.items[id]

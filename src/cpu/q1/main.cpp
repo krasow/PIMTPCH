@@ -1,6 +1,7 @@
 // main.cpp for cpu test
 #include <q1_cpu.h>
 #include <omp.h>
+#include <common/hmap.h>
 
 int main(int argc, char* argv[]) {
 	srand(SEED);
@@ -16,17 +17,34 @@ int main(int argc, char* argv[]) {
 #ifdef DEBUG
 	print_data(l_tups);
 #endif
-
 	// setup hash table
 	struct tpch_hashtable *out = NULL;
 
 	for (uint32_t i = 0; i < tests; i++) {
 		// run and time naive
 		cpu_t_naive.start();
-		q1_naive(out, l_tups);
+		q1_naive(&out, l_tups);
 		cpu_t_naive.stop();
+
+		struct tpch_hashtable_iter *iter;
+		printf("ITERATION %d -----\n", i);
+	
+		for(iter = tpch_create_htable_iter (out); iter->entry; tpch_htable_iter_advance(iter)) 
+		{
+			uint16_t key = (uint16_t)tpch_htable_get_iter_key(iter);
+			values *val = (values*)tpch_htable_get_iter_value(iter);
+			
+			printf("%d %d |", ((key>>8) & 0x00ff), key & 0x00ff);
+			for (unsigned int j=0; j<val->double_cnt; j++){
+				printf("%lu | ", val->doubles[j]);
+			} 
+			for (unsigned int j=0; j<val->int_cnt; j++){
+				printf("%lu | ", val->ints[j]);
+			} 
+			printf("\n");
+		}
 		// free hash table
-		// tpch_free_htable(out, 0, 0);
+		tpch_free_htable(out, 0, 0);
 	}
 	cpu_t_naive.print("CPU NAIVE");
 

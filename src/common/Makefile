@@ -4,7 +4,7 @@ TARGETS=lineitem orders customer tables timer
 
 ### Leave alone ###
 CC=clang++
-CFLAGS=-O3 -Ofast -march=native -c -g -Wall
+CFLAGS=-O3 -Ofast -march=native -c -g -Wall -gdwarf-4
 LDFLAGS=-I $(PROJECT)/include
 
 BUILD_DIR=$(PROJECT)/build/common

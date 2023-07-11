@@ -4,7 +4,7 @@ QUERIES := q1 q3 q6
 ### Leave alone ###
 
 CC=clang++
-CFLAGS=-O3 -Ofast -march=native --std=c++11 -g -Wall -fopenmp -Wno-deprecated
+CFLAGS=-O3 -Ofast -march=native --std=c++11 -g -Wall -fopenmp -Wno-deprecated -gdwarf-4
 LDFLAGS=-lomp -lm  -I $(PROJECT)/include 
 
 BUILD_DIR=$(PROJECT)/build/cpu

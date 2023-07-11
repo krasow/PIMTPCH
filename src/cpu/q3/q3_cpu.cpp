@@ -29,57 +29,83 @@ limit 10
 
 
 #ifdef __COL
-uint64_t q3_naive(const lineitem* l_tups, const orders* o_tups, const customer* c_tups)
+DEFINE_HASHTABLE_INSERT(q3_insert, __BIGINT, values*);
+
+__DOUBLE* q3_naive(const lineitem* l_tups, const orders* o_tups, const customer* c_tups)
 {
     size_t i = 0;
-    // hmap_id_t *join1 = hmap_id_init(56000, 0); //28k * 2
-    // hmap_id_t *join2 = hmap_id_init(268000, sizeof(uint64_t)); //134k * 2
-    // double *out = calloc(10, sizeof(*out));
+    struct values* val;
 
-    // //scan customer
-    // for (i = 0; i < customer->elements; i++)
-    //     if (customer->c_mktsegment[i] == Q3_SEGMENT) {
-    //         id_t key = customer->c_custkey[i];
-    //         hmap_id_put(join1, key);
-    //     }
+    struct tpch_hashtable* join1 = tpch_create_htable(56000, hash_fn, int_keys_equal_fn); //28k * 2
+    struct tpch_hashtable* join2 = tpch_create_htable(268000, hash_fn, int_keys_equal_fn); //134k * 2
 
-    // //scan orders
-    // for (i = 0; i < orders->elements; i++)
-    //     if (orders->o_orderdate[i] < Q3_DATE) {
-    //         id_t key1 = orders->o_custkey[i];
-    //         if (hmap_id_in(join1, key1)) {
-    //             id_t key2 = orders->o_orderkey[i];
-    //             hmap_id_put(join2, key2);
-    //         }
-    //     }
+    __DOUBLE* out = (__DOUBLE*)calloc(10, sizeof(__DOUBLE));
 
-    // //scan lineitem
-    // for (i = 0; i < lineitem->elements; i++)
-    //     if (lineitem->l_shipdate[i] > Q3_DATE) {
-    //         id_t key = lineitem->l_orderkey[i];
-    //         val_t val = hmap_id_get(join2, key);
-    //         if (val != NULL)
-    //             val_f64(val, 0) += lineitem->l_extendedprice[i]
-    //                              * (1.0 - lineitem->l_discount[i]);
-    //     }
+    //scan customer
+    for (i = 0; i < c_tups->elements; i++)
+    {
+        // c_mktsegment = 'BUILDING'
+        if (strncmp((char*)GET_STRING(c_tups, c_mktsegment, 3, i),
+            Q3_SEGMENT,
+            GET_STRING_SIZE(c_tups, 3)) == 0)
+        {
+            __BIGINT key = c_tups->c_custkey[i];
+            q3_insert(join1, key, nullptr);
+        }
+    }
 
-    // //get top 10
-    // size_t imin = 0;
-    // double vmin = 0;
-    // itr_id_t *itr = hmap_id_itr(join2);
-    // while (hmap_id_next(itr)) {
-    //     double tmp = val_f64(itr->val, 0);
-    //     if (tmp > vmin) {
-    //         out[imin] = tmp;
-    //         vmin = tmp;
-    //         for (i = 0; i < 10; i++)
-    //             if (out[i] < vmin) {
-    //                 vmin = out[i];
-    //                 imin = i;
-    //             }
-    //     }
-    // }
-    return i;
+    //scan orders
+    for (i = 0; i < o_tups->elements; i++)
+    {
+        if (o_tups->o_orderdate[i] < Q3_DATE1) {
+            id_t key1 = o_tups->o_custkey[i];
+            // and c_custkey = o_custkey
+            if (tpch_htable_search(join1, key1)) {
+                __BIGINT key2 = o_tups->o_orderkey[i];
+                q3_insert(join2, key2, nullptr);
+            }
+        }
+    }
+
+
+    //scan lineitem
+    for (i = 0; i < l_tups->elements; i++) {
+        if (l_tups->l_shipdate[i] > Q3_DATE1) {
+            __BIGINT key = l_tups->l_orderkey[i];
+            // and l_orderkey = o_orderkey
+            val = (values*)tpch_htable_search(join2, key);
+            if (val != NULL) {
+                val_f64(val, 0) += l_tups->l_extendedprice[i]
+                    * (1.0 - l_tups->l_discount[i]);
+
+            }
+        }
+    }
+
+    //get top 10
+    __BIGINT imin = 0;
+    __DOUBLE vmin = 0;
+    struct tpch_hashtable_iter* iter;
+
+    for (iter = tpch_create_htable_iter(join2); iter->entry; tpch_htable_iter_advance(iter))
+    {
+        // uint16_t key = (uint16_t)tpch_htable_get_iter_key(iter);
+        values* val = (values*)tpch_htable_get_iter_value(iter);
+
+        __DOUBLE tmp = val_f64(val, 0);
+        if (tmp > vmin) {
+            out[imin] = tmp;
+            vmin = tmp;
+            for (i = 0; i < 10; i++) {
+                if (out[i] < vmin) {
+                    vmin = out[i];
+                    imin = i;
+                }
+            }
+        }
+    }
+
+    return out;
 }
 #endif
 

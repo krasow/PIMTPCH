@@ -50,6 +50,32 @@
 #endif
 
 
+typedef struct values {
+    __BIGINT* ints;
+    __DOUBLE* doubles;
+
+    uint16_t int_cnt;
+    uint16_t double_cnt;  
+} values;
+
+#define val_malloc(val, num_ints, num_doubles) \
+    val = (values*) malloc(sizeof(values)); \
+    val->ints = (__BIGINT*) calloc(sizeof(__BIGINT), num_ints); \
+    val->doubles = (__DOUBLE*) calloc(sizeof(__DOUBLE), num_doubles); \
+    val->int_cnt = num_ints; \
+    val->double_cnt = num_doubles; \
+
+
+#define val_free(val) \
+    free(val->ints); \
+    free(val->doubles); \
+    free(val); \
+
+
+#define val_i64(val, offset)  val->ints[offset]
+#define val_f64(val, offset)  val->doubles[offset]
+
+
 struct tpch_hashtable;
 
 /* Example of use:

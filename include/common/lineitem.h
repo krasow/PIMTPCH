@@ -62,28 +62,29 @@ typedef struct lineitem {
 #ifdef __COL
 //one tuple is 160 bytes
 #define LINEITEM_TUPLE_SIZE     160
+#define LINEITEM_DBSTRING_SZS   {26, 11, 45}
 
 typedef struct lineitem {
     uint32_t  elements;
     table_desc td;
 
     // different columns
-    __BIGINT*   l_orderkey;
-    __BIGINT*   l_partkey;
-    __BIGINT*   l_suppkey;
-    __BIGINT*   l_linenumber;
-    __BIGINT*   l_quantity;
-    __DOUBLE*   l_extendedprice;
-    __DOUBLE*   l_discount;
-    __DOUBLE*   l_tax;            // 64 bytes
-    __CHAR*     l_returnflag;
-    __CHAR*     l_linestatus;     // 66 bytes
-    __DATE*     l_shipdate;
-    __DATE*     l_commitdate;
-    __DATE*     l_receiptdate;    // 78 bytes
-    __DBSTRING* l_shipinstruct;
-    __DBSTRING* l_shipmode;
-    __DBSTRING* l_comment;        // 160 bytes
+    __BIGINT*   l_orderkey;         // 8
+    __BIGINT*   l_partkey;          // 16
+    __BIGINT*   l_suppkey;          // 24
+    __BIGINT*   l_linenumber;       // 32
+    __BIGINT*   l_quantity;         // 40
+    __DOUBLE*   l_extendedprice;    // 48
+    __DOUBLE*   l_discount;         // 56
+    __DOUBLE*   l_tax;              // 64
+    __CHAR*     l_returnflag;       // 65
+    __CHAR*     l_linestatus;       // 66
+    __DATE*     l_shipdate;         // 70
+    __DATE*     l_commitdate;       // 74
+    __DATE*     l_receiptdate;      // 78
+    __DBSTRING* l_shipinstruct;     // 104
+    __DBSTRING* l_shipmode;         // 115
+    __DBSTRING* l_comment;          // 160 bytes
 } lineitem;
 
 #endif

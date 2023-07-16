@@ -13,9 +13,11 @@ int main(int argc, char* argv[]) {
 	lineitem* 	l_tups = NULL;
 	orders* 	o_tups = NULL;
 	customer* 	c_tups = NULL;
+
+	retrieve(&c_tups);
 	retrieve(&l_tups);
 	retrieve(&o_tups);
-	retrieve(&c_tups);
+	
 
 #ifdef DEBUG
 	print_data(l_tups);
@@ -35,6 +37,7 @@ int main(int argc, char* argv[]) {
 		for (uint16_t j = 0; j < 10; j++) {
 			printf("%lu | ", naive_tpch_q3_out[j]);
 		}
+		printf("\n");
 	}
 	cpu_t_naive.print("CPU NAIVE");
 
@@ -49,9 +52,9 @@ int main(int argc, char* argv[]) {
 	// }
 	// cpu_t.print("CPU VECTORIZED OPENMP", tpch_q3_sum);
 
-	table_free(&l_tups);
-	table_free(&o_tups);
-	table_free(&c_tups);
+	// table_free(&l_tups);
+	// table_free(&o_tups);
+	// table_free(&c_tups);
 
 	return 0;
 }

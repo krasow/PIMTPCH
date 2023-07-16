@@ -14,14 +14,12 @@ void td_elem_reallocate(td_elem* elem, uint64_t tuple_cnt);
 void td_elem_free(td_elem* elem);
 
 uint32_t convert_date(char* date) {
-    int YYYY = 0, MM = 0, DD = 0;
     struct tm ti;
     memset(&ti, 0, sizeof(ti));
-    sscanf(date, "%d-%d-%d", &YYYY, &MM, &DD);
-    ti.tm_year = YYYY - 1900;
-    ti.tm_mon = MM;
-    ti.tm_mday = DD;
-    return (uint32_t)mktime(&ti);
+    strptime(date, "%Y-%m-%d", &ti);
+
+    uint32_t ret = (int)mktime(&ti);
+    return (uint32_t)ret;
 }
 
 void td_setup(table_desc* td,
@@ -101,6 +99,10 @@ void td_elem_reallocate(td_elem* elem, uint64_t tuple_cnt) {
             elemsize = elem->sizes[i];
         }
         elem->items[i] = (addr_t)realloc((void*)elem->items[i], elemsize * tuple_cnt);
+        if(elem->items[i] == 0) {
+            std::cerr << "Could not allocate space for tuples." << std::endl;
+            exit(-1);
+        }
     }
 }
 

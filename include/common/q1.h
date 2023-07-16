@@ -7,7 +7,7 @@
 #include "tables.h"
 
 
-#define Q1_DATE1    912492000 //1998-12-01
+#define Q1_DATE1    912470400 //1998-12-01
 
 
 #endif

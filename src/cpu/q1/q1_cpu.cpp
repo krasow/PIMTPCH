@@ -35,10 +35,11 @@ void q1_naive(struct tpch_hashtable **out, const lineitem * l_tups)
 	struct values *val;
 	bool ins = 0;
 
-	*out = tpch_create_htable(65536, hash_fn, int_keys_equal_fn);  // hmap_u16_t* out = hmap_u16_init(65536, 48);
+	*out = tpch_create_htable(65536, hash_fn, int_keys_equal_fn);  // hmap_u16_t* out = hmap_u16_init(65536, 48)
+	
 	for (size_t i = 0; i < l_tups->elements; i++) {
 		//  l_shipdate <= date '1998-12-01'
-		if (l_tups->l_shipdate[i] <= Q1_DATE1) { 
+		if (l_tups->l_shipdate[i] <= (Q1_DATE1)) { 
 			//  group by  l_returnflag,  l_linestatus
 			uint16_t key = (l_tups->l_returnflag[i] << 8) 
 				| l_tups->l_linestatus[i];
@@ -64,8 +65,9 @@ void q1_naive(struct tpch_hashtable **out, const lineitem * l_tups)
 			if (ins) {
 				q1_insert(*out, key, val);
 			}
-		}
+		} 
 	}
+
 }
 #endif
 

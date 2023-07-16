@@ -26,6 +26,7 @@ order by
 limit 10
 */
 #include <q3_cpu.h>
+#include <iostream>
 
 
 #ifdef __COL
@@ -45,39 +46,43 @@ __DOUBLE* q3_naive(const lineitem* l_tups, const orders* o_tups, const customer*
     for (i = 0; i < c_tups->elements; i++)
     {
         // c_mktsegment = 'BUILDING'
+        // std::cout << GET_STRING(c_tups, c_mktsegment, 3, i) << std::endl;
         if (strncmp((char*)GET_STRING(c_tups, c_mktsegment, 3, i),
             Q3_SEGMENT,
             GET_STRING_SIZE(c_tups, 3)) == 0)
         {
             __BIGINT key = c_tups->c_custkey[i];
-            q3_insert(join1, key, nullptr);
+            val_malloc(val, 0, 0);
+            q3_insert(join1, key, val);
+            val = nullptr;
         }
     }
 
     //scan orders
     for (i = 0; i < o_tups->elements; i++)
-    {
+    { 
         if (o_tups->o_orderdate[i] < Q3_DATE1) {
-            id_t key1 = o_tups->o_custkey[i];
+            __BIGINT key1 = o_tups->o_custkey[i];
             // and c_custkey = o_custkey
             if (tpch_htable_search(join1, key1)) {
                 __BIGINT key2 = o_tups->o_orderkey[i];
-                q3_insert(join2, key2, nullptr);
+                val_malloc(val, 0, 1);
+                q3_insert(join2, key2, val);
+                val = nullptr;
             }
         }
     }
-
 
     //scan lineitem
     for (i = 0; i < l_tups->elements; i++) {
         if (l_tups->l_shipdate[i] > Q3_DATE1) {
             __BIGINT key = l_tups->l_orderkey[i];
+        
             // and l_orderkey = o_orderkey
             val = (values*)tpch_htable_search(join2, key);
             if (val != NULL) {
                 val_f64(val, 0) += l_tups->l_extendedprice[i]
-                    * (1.0 - l_tups->l_discount[i]);
-
+                    * (10 - l_tups->l_discount[i]);
             }
         }
     }
@@ -104,7 +109,6 @@ __DOUBLE* q3_naive(const lineitem* l_tups, const orders* o_tups, const customer*
             }
         }
     }
-
     return out;
 }
 #endif

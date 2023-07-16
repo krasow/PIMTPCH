@@ -33,21 +33,22 @@ DOUBLE      -> uint64_t
 #define CUSTOMER_COLUMNS    8
 
 #ifdef __COL
-#define CUSTOMER_TUPLE_SIZE 148
+#define CUSTOMER_TUPLE_SIZE     236
+#define CUSTOMER_DBSTRING_SZS   {26, 41, 16, 11, 118}
 
 typedef struct customer {
     uint32_t  elements;
     table_desc td;
 
     // different columns
-    __BIGINT*  	 c_custkey;
-    __DBSTRING*  c_name;
-    __DBSTRING*  c_address;
-    __BIGINT*    c_nationkey;
-    __DBSTRING*  c_phone;
-    __DOUBLE*    c_acctbal;
-    __DBSTRING*  c_mktsegment;
-    __DBSTRING*  c_comment;
+    __BIGINT*  	 c_custkey;         // 8
+    __DBSTRING*  c_name;            // 34
+    __DBSTRING*  c_address;         // 75
+    __BIGINT*    c_nationkey;       // 83
+    __DBSTRING*  c_phone;           // 99
+    __DOUBLE*    c_acctbal;         // 107
+    __DBSTRING*  c_mktsegment;      // 118
+    __DBSTRING*  c_comment;         // 236 bytes
 } customer;
 
 #endif

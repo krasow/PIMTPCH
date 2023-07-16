@@ -36,22 +36,23 @@ DOUBLE      -> uint64_t
 #define ORDERS_COLUMNS      9
 
 #ifdef __COL
-#define ORDERS_TUPLE_SIZE   148
+#define ORDERS_TUPLE_SIZE   149
+#define ORDERS_DBSTRING_SZS {16, 16, 80}
 
 typedef struct orders {
     uint32_t  elements;
     table_desc td;
 
     // different columns
-    __BIGINT*  	 o_orderkey;
-    __BIGINT*    o_custkey;
-    __CHAR*      o_orderstatus;
-    __DOUBLE*    o_totalprice;
-    __DATE*      o_orderdate;
-    __DBSTRING*  o_orderpriority;
-    __DBSTRING*  o_clerk;
-    __BIGINT*    o_shippriority;
-    __DBSTRING*  o_comment;
+    __BIGINT*  	 o_orderkey;        // 8
+    __BIGINT*    o_custkey;         // 16
+    __CHAR*      o_orderstatus;     // 17
+    __DOUBLE*    o_totalprice;      // 25
+    __DATE*      o_orderdate;       // 29
+    __DBSTRING*  o_orderpriority;   // 45
+    __DBSTRING*  o_clerk;           // 61
+    __BIGINT*    o_shippriority;    // 69
+    __DBSTRING*  o_comment;         // 149
 } orders;
 
 #endif

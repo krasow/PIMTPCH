@@ -19,7 +19,7 @@
 #define __COL
 #define DATABASE		"/home/david/PIM_TPCH/database1"
 
-#define MAX_TUPLES       (1<<26)
+#define MAX_TUPLES       (1<<25)
 
 #define SEED			72
 #define PAGE_SIZE       4096

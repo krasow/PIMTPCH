@@ -29,8 +29,6 @@ DOUBLE      -> uint64_t
 */
 
 
-
-#include "tpch.h"
 #include "tables.h"
 
 #define ORDERS_COLUMNS      9
@@ -41,7 +39,7 @@ DOUBLE      -> uint64_t
 
 typedef struct orders {
     uint32_t  elements;
-    table_desc td;
+    table_desc* td;
 
     // different columns
     __BIGINT*  	 o_orderkey;        // 8

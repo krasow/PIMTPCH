@@ -2,7 +2,9 @@
 #define TIMER_H
 
 #include <string>
-
+#include <sys/time.h>
+#include <time.h>
+#include "../tpch.h"
 
 /*  class calculates average time
  *  calc_time::start()		: begins timer

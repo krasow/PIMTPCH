@@ -1,13 +1,11 @@
-#include <sys/time.h>
-#include <time.h>
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
 
 #include <iostream>
 
+#include <common/timer.h>
 #include <common/tables.h>
-#include <common/tpch.h>
 
 void td_elem_allocate(td_elem* elem);
 void td_elem_reallocate(td_elem* elem, uint64_t tuple_cnt);
@@ -71,7 +69,8 @@ void td_elem_allocate(td_elem* elem) {
         }
         elem->items[i] = (addr_t)malloc(elemsize * MAX_TUPLES);
         if(elem->items[i] == 0) {
-            std::cerr << "Could not allocate space for tuples." << std::endl;
+            std::cerr << "td_elem_allocate:: Could not allocate space for tuples." << std::endl;
+            std::cerr << "num_tuples:: " << MAX_TUPLES << " elem_size:: " << elemsize << std::endl;
             exit(-1);
         }
     }
@@ -87,7 +86,6 @@ void td_reallocate(table_desc* td, uint64_t tuple_cnt) {
     td_elem_reallocate(&td->strings, tuple_cnt);
 }
 
-
 void td_elem_reallocate(td_elem* elem, uint64_t tuple_cnt) {
     uint32_t elemsize = 0;
     // if not string
@@ -100,19 +98,19 @@ void td_elem_reallocate(td_elem* elem, uint64_t tuple_cnt) {
         }
         elem->items[i] = (addr_t)realloc((void*)elem->items[i], elemsize * tuple_cnt);
         if(elem->items[i] == 0) {
-            std::cerr << "Could not allocate space for tuples." << std::endl;
+            std::cerr << "td_elem_reallocate:: Could not allocate space for tuples." << std::endl;
+            std::cerr << "num_tuples:: " << tuple_cnt << " elem_size:: " << elemsize << std::endl;
             exit(-1);
         }
     }
 }
-
-
 void td_free(table_desc* td) {
     td_elem_free(&td->bigInts);
     td_elem_free(&td->doubles);
     td_elem_free(&td->chars);
     td_elem_free(&td->dates);
     td_elem_free(&td->strings);
+    free(td);
 }
 
 void td_elem_free(td_elem* elem) {

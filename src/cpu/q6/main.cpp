@@ -1,6 +1,8 @@
 // main.cpp for cpu test
-#include <q6_cpu.h>
+#include <q6.h>
 #include <omp.h>
+#include <common/timer.h>
+#include <iostream>
 
 int main(int argc, char* argv[]) {
 	srand(SEED);
@@ -12,6 +14,9 @@ int main(int argc, char* argv[]) {
 	// get from DATABASE stored
 	lineitem* l_tups = NULL;
 	retrieve(&l_tups);
+
+	std::cout << l_tups->elements << std::endl;
+	
 
 #ifdef DEBUG
 	print_data(l_tups);

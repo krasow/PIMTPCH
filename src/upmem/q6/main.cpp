@@ -6,16 +6,13 @@
 #include <stdio.h>
 #include <assert.h>
 
-#include <q6_upmem.h>
+
+#include <pim.h>
+#include <q6.h>
 #include <common/timer.h>
 
 // dpu specific 
 #include <dpu>
-
-#ifndef DPU_BINARY
-#define DPU_BINARY "./build/upmem/q6_dpu"
-#define DPU_REDUCE_BINARY "./build/upmem/common/reduce"
-#endif
 
 
 int main(int argc, char* argv[]) {
@@ -43,8 +40,8 @@ int main(int argc, char* argv[]) {
 	uint32_t nr_of_dpus;
 
 	// allocate and load DPU binaries
-	DPU_ASSERT(dpu_alloc(NUM_DPUS, "backend=simulator", &dpu_set));
-	DPU_ASSERT(dpu_load(dpu_set, DPU_BINARY, NULL));
+	DPU_ASSERT(dpu_alloc(NR_DPUS, "backend=simulator", &dpu_set));
+	DPU_ASSERT(dpu_load(dpu_set, Q6_DPU_BINARY, NULL));
 
 	DPU_ASSERT(dpu_alloc(1, "backend=simulator", &dpu_reduce));
 	DPU_ASSERT(dpu_load(dpu_reduce, DPU_REDUCE_BINARY, NULL));
@@ -56,58 +53,45 @@ int main(int argc, char* argv[]) {
 		const uint64_t tuples_per_dpu = divceil(l_tups->elements, nr_of_dpus);
 
 		// bytes per DPU 
-		const uint64_t total_mram_size = tuples_per_dpu * LINEITEM_TUPLE_SIZE;
-
+		const uint64_t total_mram_size = tuples_per_dpu * Q6_ACT_SIZE;
 
 		// Input arguments
-		dpu_arguments_t input_arguments[nr_of_dpus];
-		for (uint32_t i = 0; i < nr_of_dpus - 1; i++) {
-			input_arguments[i].size = total_mram_size;
+		q6_dpu_arguments_t input_arguments[nr_of_dpus];
+		for (uint32_t i = 0; i < nr_of_dpus-1; i++) {
+			input_arguments[i].l_tups_cnt = tuples_per_dpu;
 			input_arguments[i].transfer_size = total_mram_size;
 		}
-		input_arguments[nr_of_dpus - 1].size = (l_tups->elements * LINEITEM_TUPLE_SIZE - total_mram_size * (nr_of_dpus - 1));
+		input_arguments[nr_of_dpus - 1].l_tups_cnt = (l_tups->elements - tuples_per_dpu * (nr_of_dpus - 1));
 		input_arguments[nr_of_dpus - 1].transfer_size = total_mram_size;
-
-
-		uint32_t idx_dpu = 0;
 
 
 #ifndef SIMULATOR // method is not accurate in simulator
 		// start transfer time
 		dpu_transfer_t.start();
 #endif
-
+		uint32_t idx_dpu = 0;
 		// transfer input arguments 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
 			DPU_ASSERT(dpu_prepare_xfer(dpu, &input_arguments[idx_dpu]));
 		}
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, "DPU_INPUT_ARGUMENTS", 0, sizeof(input_arguments[0]), DPU_XFER_DEFAULT));
 
-
 		idx_dpu = 0; //reset idx
-
-
-#ifdef __ROW
-		// transfer input table  
-		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &l_tups->data[tuples_per_dpu * idx_dpu];
-			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
-		}
-		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, total_mram_size, DPU_XFER_DEFAULT));
-#endif 
-
 
 
 
 #ifdef __COL
 		// transfer input table  
+		uint32_t txf_size = 0;
+		uint32_t total_heap_loc = 0;
+
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
 			void* temp_loc = &l_tups->l_shipdate[tuples_per_dpu * idx_dpu];
 			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
 		}
-		uint32_t txf_size = tuples_per_dpu * sizeof(l_tups->l_shipdate[0]);
-		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, txf_size, DPU_XFER_DEFAULT));
-		uint32_t total_heap_loc = txf_size;
+		txf_size = tuples_per_dpu * sizeof(l_tups->l_shipdate[0]);
+		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, total_heap_loc, txf_size, DPU_XFER_DEFAULT));
+		total_heap_loc += txf_size;
 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
 			void* temp_loc = &l_tups->l_discount[tuples_per_dpu * idx_dpu];
@@ -135,10 +119,8 @@ int main(int argc, char* argv[]) {
 		total_heap_loc += txf_size;
 
 		assert(total_heap_loc == total_mram_size);
+
 #endif
-
-
-
 
 
 
@@ -192,29 +174,29 @@ int main(int argc, char* argv[]) {
 		idx_dpu = 0; // reset idx 
 
 		// set output
-		uint32_t dpu_output_size = sizeof(uint64_t) * NUM_TASKLETS;
+		uint32_t dpu_output_size = sizeof(uint64_t) * NR_TASKLETS;
 		uint32_t results_size = dpu_output_size * nr_of_dpus;
 
 		uint64_t* results = (uint64_t*)malloc(results_size);
 		memset(results, 0, results_size);
 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			DPU_ASSERT(dpu_prepare_xfer(dpu, &results[idx_dpu * NUM_TASKLETS]));
+			DPU_ASSERT(dpu_prepare_xfer(dpu, &results[idx_dpu * NR_TASKLETS]));
 		}
 
 		// total_mram_size is used as the offset for storing return in MRAM
 		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_FROM_DPU, DPU_MRAM_HEAP_POINTER_NAME, total_mram_size, dpu_output_size, DPU_XFER_DEFAULT));
 
 
-// #ifdef PRINT
-// 		std::cout << "Transfer results for each DPU" << std::endl;
-// 		uint16_t dpu_count = 0;
-// 		for (uint32_t j = 0; j < nr_of_dpus * NUM_TASKLETS; j++) {
-// 			std::cout << "DPU " << dpu_count << " tasklet "
-// 				<< j % NUM_TASKLETS << " \t--> " << results[j] << std::endl;
-// 			if ((j % NUM_TASKLETS == 0) && (j >= NUM_TASKLETS)) { dpu_count++; }
-// 		}
-// #endif
+#ifdef DEBUG
+		std::cout << "Transfer results for each DPU" << std::endl;
+		uint16_t dpu_count = 0;
+		for (uint32_t j = 0; j < nr_of_dpus * NR_TASKLETS; j++) {
+			std::cout << "DPU " << dpu_count << " tasklet "
+				<< j % NR_TASKLETS << " \t--> " << results[j] << std::endl;
+			if ((j % NR_TASKLETS == 0) && (j >= NR_TASKLETS)) { dpu_count++; }
+		}
+#endif
 
 
 		// REDUCE KERNEL

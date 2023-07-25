@@ -41,7 +41,8 @@
 #include <stdint.h>
 #include <string.h>
 #include <stdlib.h>
-#include "tpch.h"
+
+#include "../tpch.h"
 
 #if DPU
 #include <alloc.h>

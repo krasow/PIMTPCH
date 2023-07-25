@@ -4,17 +4,14 @@
 #include <string>
 #include <iostream>
 
-#include <q1_upmem.h>
+#include <pim.h>
+#include <q1.h>
+
 #include <common/timer.h>
 #include <common/hmap.h>
 
 // dpu specific 
 #include <dpu>
-
-#ifndef DPU_BINARY
-#define DPU_BINARY "./build/upmem/q1_dpu"
-#define DPU_REDUCE_BINARY "./build/upmem/common/reduce"
-#endif
 
 
 int main(int argc, char* argv[]) {
@@ -42,8 +39,8 @@ int main(int argc, char* argv[]) {
 	uint32_t nr_of_dpus;
 
 	// allocate and load DPU binaries
-	DPU_ASSERT(dpu_alloc(NUM_DPUS, "backend=simulator", &dpu_set));
-	DPU_ASSERT(dpu_load(dpu_set, DPU_BINARY, NULL));
+	DPU_ASSERT(dpu_alloc(NR_DPUS, "backend=simulator", &dpu_set));
+	DPU_ASSERT(dpu_load(dpu_set, Q1_DPU_BINARY, NULL));
 
 	DPU_ASSERT(dpu_alloc(1, "backend=simulator", &dpu_reduce));
 	DPU_ASSERT(dpu_load(dpu_reduce, DPU_REDUCE_BINARY, NULL));
@@ -84,17 +81,6 @@ int main(int argc, char* argv[]) {
 
 
 		idx_dpu = 0; //reset idx
-
-
-#ifdef __ROW
-		// transfer input table  
-		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			void* temp_loc = &l_tups->data[tuples_per_dpu * idx_dpu];
-			DPU_ASSERT(dpu_prepare_xfer(dpu, temp_loc));
-		}
-		DPU_ASSERT(dpu_push_xfer(dpu_set, DPU_XFER_TO_DPU, DPU_MRAM_HEAP_POINTER_NAME, 0, total_mram_size, DPU_XFER_DEFAULT));
-#endif 
-
 
 
 
@@ -191,14 +177,14 @@ int main(int argc, char* argv[]) {
 		idx_dpu = 0; // reset idx 
 
 		// set output
-		uint32_t dpu_output_size = sizeof(uint64_t) * NUM_TASKLETS;
+		uint32_t dpu_output_size = sizeof(uint64_t) * NR_TASKLETS;
 		uint32_t results_size = dpu_output_size * nr_of_dpus;
 
 		uint64_t* results = (uint64_t*)malloc(results_size);
 		memset(results, 0, results_size);
 
 		DPU_FOREACH(dpu_set, dpu, idx_dpu) {
-			DPU_ASSERT(dpu_prepare_xfer(dpu, &results[idx_dpu * NUM_TASKLETS]));
+			DPU_ASSERT(dpu_prepare_xfer(dpu, &results[idx_dpu * NR_TASKLETS]));
 		}
 
 		// total_mram_size is used as the offset for storing return in MRAM
@@ -208,10 +194,10 @@ int main(int argc, char* argv[]) {
 // #ifdef PRINT
 // 		std::cout << "Transfer results for each DPU" << std::endl;
 // 		uint16_t dpu_count = 0;
-// 		for (uint32_t j = 0; j < nr_of_dpus * NUM_TASKLETS; j++) {
+// 		for (uint32_t j = 0; j < nr_of_dpus * NR_TASKLETS; j++) {
 // 			std::cout << "DPU " << dpu_count << " tasklet "
-// 				<< j % NUM_TASKLETS << " \t--> " << results[j] << std::endl;
-// 			if ((j % NUM_TASKLETS == 0) && (j >= NUM_TASKLETS)) { dpu_count++; }
+// 				<< j % NR_TASKLETS << " \t--> " << results[j] << std::endl;
+// 			if ((j % NR_TASKLETS == 0) && (j >= NR_TASKLETS)) { dpu_count++; }
 // 		}
 // #endif
 

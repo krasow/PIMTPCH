@@ -1,25 +1,23 @@
 // q1_dpu.c 
 // upmem dpu binary for TPCH Q1
-
 #include <stdio.h>
 #include <string.h>
 
 #include <defs.h>
 #include <mram.h>
-#include <mram_unaligned.h>
 #include <alloc.h>
 #include <perfcounter.h>
 #include <handshake.h>
 #include <barrier.h>
-#include <perfcounter.h> 
 
-#include <q1_upmem.h>
+#include <pim.h>
+#include <q1.h>
 
 __host dpu_arguments_t DPU_INPUT_ARGUMENTS;
 __host uint32_t nb_perf;
 
 // Barrier
-BARRIER_INIT(my_barrier, NUM_TASKLETS);
+BARRIER_INIT(my_barrier, NR_TASKLETS);
 
 int main() {
     perfcounter_config(COUNT_INSTRUCTIONS, true);
@@ -41,7 +39,7 @@ int main() {
 
     uint16_t tasklet_output_size = sizeof(uint64_t);
     uint16_t tasklet_output_size_log2 = find_log2(tasklet_output_size);
-    uint32_t dpu_output_size = NUM_TASKLETS << tasklet_output_size_log2;
+    uint32_t dpu_output_size = NR_TASKLETS << tasklet_output_size_log2;
     uint64_t* out = (uint64_t*)mem_alloc(dpu_output_size);
     memset(out, 0, dpu_output_size);
 
@@ -51,7 +49,7 @@ int main() {
 
     l_tups->data = (lineitem_data*)mem_alloc(TUPLE_SIZE << BLOCK_SIZE_LOG2);
     // split up total elements to reduce allocated WRAM (max 64KB)
-    for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NUM_TASKLETS << BLOCK_SIZE_LOG2) {
+    for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NR_TASKLETS << BLOCK_SIZE_LOG2) {
         // Bound checking for the block
         uint32_t block_elems = (i + BLOCK_SIZE >= input_size_dpu_elems) ? (input_size_dpu_elems - i) : BLOCK_SIZE;
         mram_read((__mram_ptr void const*)(mram_base_addr + (i << elem_size_log2)), l_tups->data, block_elems << elem_size_log2);
@@ -101,7 +99,7 @@ int main() {
     // assert((total_heap_loc + (BLOCK_SIZE << 3))  ==  (TUPLE_SIZE << BLOCK_SIZE_LOG2));
 
     // split up total elements to reduce allocated WRAM (max 64KB)
-    for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NUM_TASKLETS << BLOCK_SIZE_LOG2) {
+    for (uint32_t i = tasklet_id << BLOCK_SIZE_LOG2; i < input_size_dpu_elems; i += NR_TASKLETS << BLOCK_SIZE_LOG2) {
         // Bound checking for the block
         uint32_t block_elems = (i + BLOCK_SIZE >= input_size_dpu_elems) ? (input_size_dpu_elems - i) : BLOCK_SIZE;
 
@@ -117,7 +115,7 @@ int main() {
         total_heap_loc += input_size_dpu_elems << 3;
 
         // assert(input_size_dpu_bytes == total_heap_loc);
-        // if (tasklet_id == 15 && i <= (NUM_TASKLETS << BLOCK_SIZE_LOG2)){
+        // if (tasklet_id == 15 && i <= (NR_TASKLETS << BLOCK_SIZE_LOG2)){
         //     printf("l_shipdate %u\n", l_tups->l_shipdate[0]);
         //     printf("l_discount %lu\n", l_tups->l_discount[1]);
         //     printf("l_quantity %lu\n", l_tups->l_quantity[0]);

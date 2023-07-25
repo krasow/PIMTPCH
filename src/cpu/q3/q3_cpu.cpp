@@ -25,7 +25,7 @@ order by
         o_orderdate
 limit 10
 */
-#include <q3_cpu.h>
+#include <q3.h>
 #include <iostream>
 
 
@@ -109,6 +109,9 @@ __DOUBLE* q3_naive(const lineitem* l_tups, const orders* o_tups, const customer*
             }
         }
     }
+    
+    tpch_free_htable(join1, 0, 0);
+    tpch_free_htable(join2, 0, 0);
     return out;
 }
 #endif

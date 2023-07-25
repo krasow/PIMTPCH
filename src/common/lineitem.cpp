@@ -6,8 +6,6 @@
 #include <math.h>
 
 #include <common/lineitem.h>
-#include <common/tables.h>
-#include <common/tpch.h>
 
 //local functions
 void allocate(lineitem** l_tups);
@@ -16,14 +14,16 @@ void database_write_binary(lineitem **l_tups, std::string db_bin);
 int  database_read_binary(lineitem **l_tups, std::string db_bin);
 DEFINE_DATABASE_READ(lineitem, LINEITEM_COLUMNS);
 DEFINE_DATABASE_RETRIEVE(lineitem, "lineitem.tbl");
+DEFINE_DATABASE_FREE(lineitem);
 
 void allocate(lineitem** l_tups) {
 	*l_tups = (lineitem*)malloc(sizeof(lineitem));
+	table_desc* td = (table_desc*)malloc(sizeof(table_desc));
+	(*l_tups)->td = td;
 
 	STRING_SIZE_SET(string_szs, 3, LINEITEM_DBSTRING_SZS);
-	td_setup(&(*l_tups)->td, 5, 3, 2, 3, 3, string_szs);
-	td_allocate(&(*l_tups)->td);
-
+	td_setup((*l_tups)->td, 5, 3, 2, 3, 3, string_szs);
+	td_allocate((*l_tups)->td);
 	// big ints
 	(*l_tups)->l_orderkey 		= BIGINT_MEMSET(*l_tups, 0);
 	(*l_tups)->l_partkey 		= BIGINT_MEMSET(*l_tups, 1);
@@ -57,7 +57,7 @@ int database_read_binary(lineitem **l_tups, std::string db_bin) {
 
 		uint32_t tuples = bytes_read / LINEITEM_TUPLE_SIZE;
 		(*l_tups)->elements = tuples;
-		td_reallocate(&(*l_tups)->td, tuples);
+		td_reallocate((*l_tups)->td, tuples);
 
 		fread((void*)(*l_tups)->l_orderkey, 		sizeof(__BIGINT), tuples, f_bin);
 		fread((void*)(*l_tups)->l_partkey, 			sizeof(__BIGINT), tuples, f_bin);
@@ -133,12 +133,6 @@ void fill(lineitem* l_tups, char** elems, uint64_t curr_tuple) {
 	strncpy((char *)GET_STRING(l_tups, l_comment,  2, curr_tuple),
 			elems[15], GET_STRING_SIZE(l_tups, 2));
 }
-
-void table_free(lineitem** l_tups) {
-	td_free(&(*l_tups)->td);
-	free(*l_tups);
-}
-
 
 void print_data(lineitem* l_tups) {
 	for (uint32_t i = 0; i < l_tups->elements; i++) {

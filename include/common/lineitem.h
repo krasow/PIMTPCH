@@ -36,7 +36,7 @@ DOUBLE      -> uint64_t
 */
 
 
-#include "tpch.h"
+#include "../tpch.h"
 #include "tables.h"
 
 #define LINEITEM_COLUMNS 16
@@ -66,7 +66,7 @@ typedef struct lineitem {
 
 typedef struct lineitem {
     uint32_t  elements;
-    table_desc td;
+    table_desc* td;
 
     // different columns
     __BIGINT*   l_orderkey;         // 8

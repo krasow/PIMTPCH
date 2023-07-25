@@ -1,7 +1,8 @@
 // main.cpp for cpu test
-#include <q1_cpu.h>
+#include <q1.h>
 #include <omp.h>
 #include <common/hmap.h>
+#include <common/timer.h>
 
 int main(int argc, char* argv[]) {
 	srand(SEED);

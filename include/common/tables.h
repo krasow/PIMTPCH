@@ -1,20 +1,20 @@
 #ifndef TABLES_H 
 #define TABLES_H
 
-#include "tpch.h"
+#include "../tpch.h"
 
 
 #define COLUMN_BUFFER 128
 #define ROW_BUFFER 1000
 
-#define BIGINT_MEMSET(table, id)    (__BIGINT*) (table)->td.bigInts.items[id]
-#define DOUBLE_MEMSET(table, id)    (__DOUBLE*) (table)->td.doubles.items[id]
-#define CHAR_MEMSET(table, id)      (__CHAR*)   (table)->td.chars.items[id]
-#define DATE_MEMSET(table, id)      (__DATE*)   (table)->td.dates.items[id]
-#define STRING_MEMSET(table, id)    (__DBSTRING*)(table)->td.strings.items[id]
+#define BIGINT_MEMSET(table, id)    (__BIGINT*) (table)->td->bigInts.items[id]
+#define DOUBLE_MEMSET(table, id)    (__DOUBLE*) (table)->td->doubles.items[id]
+#define CHAR_MEMSET(table, id)      (__CHAR*)   (table)->td->chars.items[id]
+#define DATE_MEMSET(table, id)      (__DATE*)   (table)->td->dates.items[id]
+#define STRING_MEMSET(table, id)    (__DBSTRING*)(table)->td->strings.items[id]
 
 #define BIGINT_SET(val)             (__BIGINT)(atoi(val))
-#define DOUBLE_SET(val, scale)      (__DOUBLE)ceil(strtod(val, &val + COLUMN_BUFFER - 1) * scale)
+#define DOUBLE_SET(val, scale)      (__DOUBLE)ceil(strtod(val, &val + 100) * scale)
 #define CHAR_SET(val)               val[0]
 #define DATE_SET(val)               convert_date(val)
 
@@ -23,6 +23,7 @@
     size_t string_szs_set[count] = sizes_list;                  \
     memcpy(string_szs, string_szs_set, sizeof(size_t) * count)  \
 
+/* declare after local function declarations for each table file */
 #define DEFINE_DATABASE_RETRIEVE(table, file)                                      \
     void retrieve(table** tuples) {                                                \
         std::string db = DATABASE;                                                 \
@@ -38,7 +39,7 @@
         database_write_binary(tuples, db_bin);                                     \
     }
 
-
+/* declare after local function declarations for each table file */
 #define DEFINE_DATABASE_READ(table, cols)                                          \
     void database_read(table** tuples, std::string db) {                           \
         std::cout << db << std::endl;                                              \
@@ -49,18 +50,19 @@
         /* hold an entire row from fgets */                                        \
         char buffer[ROW_BUFFER];                                                   \
         /* hold an entire row separated by pipe delimiter & heap allocation */     \
-        char **elems = (char**)malloc(cols * sizeof(char*));                       \
+        char** elems = (char**)malloc(cols * sizeof(char*));                       \
         for (uint16_t i = 0; i < cols; i++) {                                      \
             elems[i] = (char*)malloc(COLUMN_BUFFER);                               \
         }                                                                          \
+         /* store one column from the buffer ("STORE THIS"|"NOT THIS"|) */         \
+        char* tmp = (char*)malloc(COLUMN_BUFFER);                                  \
         uint64_t curr_tuple = 0;                                                   \
         FILE* f = fopen(db.c_str(), "rb");                                         \
         /* goes thru all the tuples */                                             \
         while (fgets(buffer, ROW_BUFFER, f) && curr_tuple < MAX_TUPLES) {          \
             uint16_t curr_elem = 0;                                                \
             int bytes = 0;                                                         \
-            /* store one column from the buffer ("STORE THIS"|"NOT THIS"|) */      \
-            char tmp[COLUMN_BUFFER];                                               \
+            memset(tmp, 0, COLUMN_BUFFER);                                         \
             /* used to increment the buffer */                                     \
             char* loc_buffer = buffer;                                             \
             /* for each element in each tuple */                                   \
@@ -82,16 +84,24 @@
         }                                                                          \
         free(elems);                                                               \
         fclose(f);                                                                 \
+        free(tmp);                                                                 \
         (*tuples)->elements = curr_tuple;                                          \
         /* reallocate based on elements read */                                    \
-        td_reallocate(&(*tuples)->td, (*tuples)->elements);                        \
+        td_reallocate((*tuples)->td, (*tuples)->elements);                        \
     }                                                                                                       
+
+/* declare after local function declarations for each table file */
+#define DEFINE_DATABASE_FREE(table)     \
+    void table_free(table** tuples) {   \
+        td_free((*tuples)->td);        \
+        free(*tuples);                  \
+    }
 
 
 typedef struct td_elem {
     addr_t* items;
     uint16_t cnt;
-    size_t   size;  // used if fixed size
+    size_t   size; // used if fixed size
     size_t* sizes; // used if non-fixed size
 } td_elem;
 

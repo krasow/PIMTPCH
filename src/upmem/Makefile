@@ -2,18 +2,23 @@
 PROJECT=/home/david/PIM_TPCH
 QUERIES := q6
 TASKLETS=16
+DPUS=32
 ### Leave alone ###
+
+DEFINES=-DNR_TASKLETS=$(TASKLETS) -DNR_DPUS=$(DPUS)
 
 ### setup CPU query binaries ###
 CC=g++
-CFLAGS=-O3 -Ofast -march=native --std=c++11 -g -Wall -Wno-deprecated
+CFLAGS=-O3 -Ofast -march=native --std=c++11 -g -Wall -Wno-deprecated 
 LDFLAGS=-lm  -I $(PROJECT)/include 
 DPU_PKG=`dpu-pkg-config --cflags --libs dpu`
 HMAP=$(PROJECT)/src/common/hmap.c
+LOG2=$(PROJECT)/src/common/log2.c
+
 
 BUILD_DIR=$(PROJECT)/build/upmem
 
-COMMON_OBJ=lineitem tables timer
+COMMON_OBJ=lineitem tables timer log2
 COMMON=$(addprefix $(PROJECT)/build/common/, $(COMMON_OBJ))
 
 BINS=$(addprefix $(BUILD_DIR)/, $(QUERIES))
@@ -21,14 +26,14 @@ BINS=$(addprefix $(BUILD_DIR)/, $(QUERIES))
 all: $(BINS) 
 
 $(BUILD_DIR)/%: %/main.cpp | $(BUILD_DIR) $(BUILD_DIR)/%_dpu GENERAL
-	$(CC) $(CFLAGS) $< -o $@ $(HMAP) $(COMMON) $(DPU_PKG) $(LDFLAGS)
+	$(CC) $(CFLAGS) $(DEFINES) $< -o $@ $(HMAP) $(COMMON) $(DPU_PKG) $(LDFLAGS)
 ### end of CPU query binaries ###
 
 
 ### setup DPU binaries ####
-COMMON_DPU_HELPERS=helper.c $(HMAP)
+COMMON_DPU_HELPERS=$(LOG2) $(HMAP)
 CC_DPU=dpu-upmem-dpurte-clang
-CFLAGS_DPU=-O2 -Wall -DNR_TASKLETS=$(TASKLETS) 
+CFLAGS_DPU=-O2 -Wall $(DEFINES)
 LDFLAGS_DPU=-I $(PROJECT)/include
 DPU_COMPILE_COMMAND=$(CC_DPU) $(CFLAGS_DPU) $(COMMON_DPU_HELPERS) $< -o $@ $(LDFLAGS_DPU)
 

@@ -27,7 +27,6 @@ DOUBLE      -> uint64_t
 
 */
 
-#include "tpch.h"
 #include "tables.h"
 
 #define CUSTOMER_COLUMNS    8
@@ -38,7 +37,7 @@ DOUBLE      -> uint64_t
 
 typedef struct customer {
     uint32_t  elements;
-    table_desc td;
+    table_desc* td;
 
     // different columns
     __BIGINT*  	 c_custkey;         // 8

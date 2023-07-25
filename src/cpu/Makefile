@@ -9,7 +9,7 @@ LDFLAGS=-lomp -lm  -I $(PROJECT)/include
 
 BUILD_DIR=$(PROJECT)/build/cpu
 
-COMMON_OBJ=lineitem orders customer tables timer 
+COMMON_OBJ=lineitem orders customer tables timer log2
 COMMON=$(addprefix $(PROJECT)/build/common/, $(COMMON_OBJ))
 HMAP=$(PROJECT)/src/common/hmap.c
 

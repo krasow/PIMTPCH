@@ -6,9 +6,6 @@
 #include <math.h>
 
 #include <common/customer.h>
-#include <common/tables.h>
-#include <common/tpch.h>
-
 
 // local functions
 void allocate(customer** c_tups);
@@ -17,13 +14,16 @@ void database_write_binary(customer **c_tups, std::string db_bin);
 int  database_read_binary(customer **c_tups, std::string db_bin);
 DEFINE_DATABASE_READ(customer, CUSTOMER_COLUMNS);
 DEFINE_DATABASE_RETRIEVE(customer, "customer.tbl");
+DEFINE_DATABASE_FREE(customer);
 
 void allocate(customer** c_tups) {
 	*c_tups = (customer*)malloc(sizeof(customer));
+	table_desc* td = (table_desc*)malloc(sizeof(table_desc));
+	(*c_tups)->td = td;
 
 	STRING_SIZE_SET(string_szs, 5, CUSTOMER_DBSTRING_SZS);
-	td_setup(&(*c_tups)->td, 2, 1, 0, 0, 5, string_szs);
-	td_allocate(&(*c_tups)->td);
+	td_setup((*c_tups)->td, 2, 1, 0, 0, 5, string_szs);
+	td_allocate((*c_tups)->td);
 
 	// big ints
 	(*c_tups)->c_custkey 		= BIGINT_MEMSET(*c_tups, 0);
@@ -49,7 +49,7 @@ int database_read_binary(customer **c_tups, std::string db_bin) {
 
 		uint32_t tuples = bytes_read / CUSTOMER_TUPLE_SIZE;
 		(*c_tups)->elements = tuples;
-		td_reallocate(&(*c_tups)->td, tuples);
+		td_reallocate((*c_tups)->td, tuples);
 
 		fread((void*)(*c_tups)->c_custkey, 		sizeof(__BIGINT), tuples, f_bin);
 		fread((void*)(*c_tups)->c_name, 		GET_STRING_SIZE((*c_tups), 0), tuples, f_bin);
@@ -94,11 +94,6 @@ void fill(customer* c_tups, char** elems, uint64_t curr_tuple) {
     c_tups->c_acctbal[curr_tuple]   = DOUBLE_SET(elems[5], 1); 
     strncpy((char *)GET_STRING(c_tups, c_mktsegment,  3, curr_tuple), elems[6], GET_STRING_SIZE(c_tups, 3));
 	strncpy((char *)GET_STRING(c_tups, c_comment,  4, curr_tuple),    elems[7], GET_STRING_SIZE(c_tups, 4));
-}
-
-void table_free(customer** c_tups) {
-	td_free(&(*c_tups)->td);
-	free(*c_tups);
 }
 
 void print_data(customer* c_tups) {

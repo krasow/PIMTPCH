@@ -11,8 +11,8 @@ where
 		and l_discount between 0.06 - 0.01 and 0.06 + 0.01
 		and l_quantity < 24
 */
-#include <q6_cpu.h>
-
+#include <q6.h>
+#include <iostream>
 
 #ifdef __ROW
 // optimized row-wise implementation

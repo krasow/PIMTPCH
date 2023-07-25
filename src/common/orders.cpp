@@ -6,8 +6,6 @@
 #include <math.h>
 
 #include <common/orders.h>
-#include <common/tables.h>
-#include <common/tpch.h>
 
 // local functions
 void allocate(orders** o_tups);
@@ -16,14 +14,17 @@ void database_write_binary(orders **o_tups, std::string db_bin);
 int  database_read_binary(orders **o_tups, std::string db_bin);
 DEFINE_DATABASE_READ(orders, ORDERS_COLUMNS);
 DEFINE_DATABASE_RETRIEVE(orders, "orders.tbl");
+DEFINE_DATABASE_FREE(orders);
 
 
 void allocate(orders** o_tups) {
 	*o_tups = (orders*)malloc(sizeof(orders));
+	table_desc* td = (table_desc*)malloc(sizeof(table_desc));
+	(*o_tups)->td = td;
 
 	STRING_SIZE_SET(string_szs, 3, ORDERS_DBSTRING_SZS);
-	td_setup(&(*o_tups)->td, 3, 1, 1, 1, 3, string_szs);
-	td_allocate(&(*o_tups)->td);
+	td_setup((*o_tups)->td, 3, 1, 1, 1, 3, string_szs);
+	td_allocate((*o_tups)->td);
 
 	// big ints
 	(*o_tups)->o_orderkey 		= BIGINT_MEMSET(*o_tups, 0);
@@ -52,7 +53,7 @@ int database_read_binary(orders **o_tups, std::string db_bin) {
 
 		uint32_t tuples = bytes_read / ORDERS_TUPLE_SIZE;
 		(*o_tups)->elements = tuples;
-		td_reallocate(&(*o_tups)->td, tuples);
+		td_reallocate((*o_tups)->td, tuples);
 
 		fread((void*)(*o_tups)->o_orderkey, 		sizeof(__BIGINT), tuples, f_bin);
 		fread((void*)(*o_tups)->o_custkey, 			sizeof(__BIGINT), tuples, f_bin);
@@ -103,11 +104,6 @@ void fill(orders* o_tups, char** elems, uint64_t curr_tuple) {
     o_tups->o_shippriority[curr_tuple] 	= BIGINT_SET(elems[7]); 
 	strncpy((char *)GET_STRING(o_tups, o_comment,  2, curr_tuple),
 			elems[8], GET_STRING_SIZE(o_tups, 2));
-}
-
-void table_free(orders** o_tups) {
-	td_free(&(*o_tups)->td);
-	free(*o_tups);
 }
 
 void print_data(orders* o_tups) {

@@ -1,6 +1,3 @@
-#include <sys/time.h>
-
-#include <common/tpch.h>
 #include <common/timer.h>
 
 void calc_time::start() {

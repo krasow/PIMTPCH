@@ -24,7 +24,7 @@ order by
 		l_linestatus
 */
 
-#include <q1_cpu.h>
+#include <q1.h>
 
 #ifdef __COL
 DEFINE_HASHTABLE_INSERT(q1_insert, uint16_t, values*);
@@ -62,6 +62,7 @@ void q1_naive(struct tpch_hashtable **out, const lineitem * l_tups)
 			val_f64(val, 3) += tmp1;
 			__DOUBLE tmp2 = tmp1 * (1 + l_tups->l_tax[i]);
 			val_f64(val, 4) += tmp2;
+			
 			if (ins) {
 				q1_insert(*out, key, val);
 			}

@@ -7,19 +7,25 @@
 // #define DEBUG
 // #define PRINT
 
+#define __COL
+// #define __SCALE10
+
 #define __BIGINT    uint64_t
 #define __DOUBLE    uint64_t
 #define __CHAR      uchar_t
 #define __DATE      uint32_t
 #define __DBSTRING  uchar_t
 
-#define GET_STRING_SIZE(table, string_id)       table->td.strings.sizes[string_id]
+#define GET_STRING_SIZE(table, string_id)       table->td->strings.sizes[string_id]
 #define GET_STRING(table, column, string_id, i) &table->column[GET_STRING_SIZE(table, string_id) * i]
 
-#define __COL
+#ifdef __SCALE10
+#define DATABASE		"/home/david/PIM_TPCH/database10"
+#define MAX_TUPLES       (1<<26)
+#else 
 #define DATABASE		"/home/david/PIM_TPCH/database1"
-
-#define MAX_TUPLES       (1<<25)
+#define MAX_TUPLES       (1<<23)
+#endif
 
 #define SEED			72
 #define PAGE_SIZE       4096
@@ -36,5 +42,7 @@
 
 typedef unsigned char uchar_t;
 typedef uint64_t addr_t;
+
+uint16_t find_log2(uint16_t input);
 
 #endif

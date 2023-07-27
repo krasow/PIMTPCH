@@ -1,6 +1,5 @@
 ### Modify here ###
-PROJECT=/home/david/PIM_TPCH
-QUERIES := q1 q3 q6 
+QUERIES := q6 q3 q1
 ### Leave alone ###
 
 CC=clang++

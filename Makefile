@@ -1,15 +1,17 @@
 ### Modify here ###
 TESTS := cpu upmem
+PROJECT := /home/david/PIM_TPCH
+QUERIES := q6 q3 q1
 ### Leave alone ###
 
-BUILD_DIR=./build
-SRCDIR=./src
+BUILD_DIR := ./build
+SRCDIR := ./src
 COMMON := common
 
 .phony: all 
 all: | $(BUILD_DIR)
-	$(MAKE) -C $(SRCDIR)/$(COMMON)
-	$(foreach t, $(TESTS), $(MAKE) -C $(SRCDIR)/$(t) ;)
+	$(MAKE) PROJECT=$(PROJECT) -C $(SRCDIR)/$(COMMON)
+	$(foreach t, $(TESTS), $(MAKE) PROJECT=$(PROJECT) -C $(SRCDIR)/$(t) ;)
 
 $(BUILD_DIR):
 	mkdir -p $(BUILD_DIR)

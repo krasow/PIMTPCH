@@ -53,9 +53,9 @@ int main(int argc, char* argv[]) {
 	// }
 	// cpu_t.print("CPU VECTORIZED OPENMP", tpch_q3_sum);
 
-	// table_free(&l_tups);
-	// table_free(&o_tups);
-	// table_free(&c_tups);
+	table_free(&l_tups);
+	table_free(&o_tups);
+	table_free(&c_tups);
 
 	return 0;
 }

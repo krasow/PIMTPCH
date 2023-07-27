@@ -1,5 +1,4 @@
 ### Modify here ###
-PROJECT=/home/david/PIM_TPCH
 TARGETS=lineitem orders customer tables timer log2
 
 ### Leave alone ###

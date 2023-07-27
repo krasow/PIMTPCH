@@ -14,10 +14,7 @@ int main(int argc, char* argv[]) {
 	// get from DATABASE stored
 	lineitem* l_tups = NULL;
 	retrieve(&l_tups);
-
-	std::cout << l_tups->elements << std::endl;
 	
-
 #ifdef DEBUG
 	print_data(l_tups);
 #endif

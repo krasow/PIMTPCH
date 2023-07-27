@@ -1,11 +1,11 @@
 ### Modify here ###
-PROJECT=/home/david/PIM_TPCH
-QUERIES := q6
 TASKLETS=16
-DPUS=2048
+DPUS=32
+SIM=1
+QUERIES := q6
 ### Leave alone ###
 
-DEFINES=-DNR_TASKLETS=$(TASKLETS) -DNR_DPUS=$(DPUS)
+DEFINES=-DNR_TASKLETS=$(TASKLETS) -DNR_DPUS=$(DPUS) -DSIMULATOR=$(SIM)
 
 ### setup CPU query binaries ###
 CC=g++

@@ -2,7 +2,11 @@
 #define PIM_H
 
 #define DPU 1
-// #define SIMULATOR
+
+#ifndef SIMULATOR
+#define SIMULATOR 1
+#endif
+
 
 #ifndef NR_TASKLETS
 #define NR_TASKLETS 16

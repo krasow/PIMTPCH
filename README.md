@@ -2,7 +2,7 @@
 
 ## to run
 
-After getting everything install (instructions below), you can run the program!
+After getting everything installed (instructions below), you can run the program!
 ```bash
 cd <INSTALL PATH>
 PROJECT=<INSTALL PATH> make -j

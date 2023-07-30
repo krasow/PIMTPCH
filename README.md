@@ -35,7 +35,13 @@ rm tpch-sf10.tar.gz
 ```
 
 ## compiler and environment
-This repo utilises ```Clang16++``` and UPMEM SDK.
+This repo utilises ```Clang16++``` and UPMEM SDK. <br>
+The downloaded Clang16 needs to be loaded at a higher level than the UPMEM SDK. <br>
+If you run into compilation errors, (1) load the UPMEM SDK env file. (2) add Clang16 to your path. <br>
+```bash
+source $HOME/upmem-2023.2.0-Linux-x86_64/upmem_env.sh # (1)
+export PATH=$HOME/clang+llvm-16.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH # (2)
+```
 
 ### Clang+LLVM download
 

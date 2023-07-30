@@ -59,13 +59,15 @@ export PATH="$HOME/clang+llvm-16.0.0-x86_64-linux-gnu-ubuntu-18.04/bin:$PATH"
 
 ### UPMEM SDK download
 
-https://sdk.upmem.com/
+https://sdk.upmem.com/ <br>
 
 To replicate our UPMEM SDK install
 ```bash
-wget http://sdk-releases.upmem.com/2023.2.0/ubuntu_20.04/upmem-2023.2.0-Linux-x86_64.tar.gz
+wget http://sdk-releases.upmem.com/2023.2.0/ubuntu_<OS VERSION>/upmem-2023.2.0-Linux-x86_64.tar.gz
 tar -xf upmem-2023.2.0-Linux-x86_64.tar.gz 
 cd upmem-2023.2.0-Linux-x86_64
 source upmem_env.sh
 ```
+Make sure to match your OS version! <br>
+
 

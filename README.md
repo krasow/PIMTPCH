@@ -8,11 +8,11 @@ cd <INSTALL PATH>
 PROJECT=<INSTALL PATH> make -j
 sh tpch.sh -t <TEST> -q <QUERY> -i <ITERATIONS>
 ```
-set test as ```upmem``` or ```cpu```
 
-set query as the query number to run.
+set ```<TEST>``` as ```upmem``` or ```cpu``` <br> 
+set ```<QUERY>``` as the query number to run  <br>
+set ```<ITERATIONS>``` to the number of iterations <br>
 
-set iterations to the number of iterations
 
 for more help ```sh tpch.sh -h```
 

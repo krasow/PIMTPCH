@@ -14,7 +14,6 @@
 // dpu specific 
 #include <dpu>
 
-
 int main(int argc, char* argv[]) {
 	srand(SEED);
 

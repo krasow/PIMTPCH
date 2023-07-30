@@ -20,10 +20,10 @@
 #define GET_STRING(table, column, string_id, i) &table->column[GET_STRING_SIZE(table, string_id) * i]
 
 #ifdef __SCALE10
-#define DATABASE		"/home/david/PIM_TPCH/database10"
+#define DATABASE		"/home/david/PIM_TPCH/sf10"
 #define MAX_TUPLES       (1<<26)
 #else 
-#define DATABASE		"/home/david/PIM_TPCH/database1"
+#define DATABASE		"/home/david/PIM_TPCH/sf1"
 #define MAX_TUPLES       (1<<23)
 #endif
 

@@ -1,8 +1,12 @@
 ### Modify here ###
 TESTS := cpu upmem
-PROJECT := /home/david/PIM_TPCH
 QUERIES := q6 q3 q1
 ### Leave alone ###
+
+ifeq ($(strip $(PROJECT)),)
+PROJECT := $(HOME)/PIM_TPCH
+endif
+
 
 BUILD_DIR := ./build
 SRCDIR := ./src
